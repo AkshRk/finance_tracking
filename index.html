@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en" class="locked">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akshath — Money In Order</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#14281F;
+    --leaf:#1E5B41;
+    --lemon:#F5C84B;
+    --melon:#E8556D;
+    --paper:#FBF8F0;
+    --ink:#20281F;
+    --mist:#E8EBDD;
+    --line:#D8DCC8;
+    --muted:#6B7263;
+    --track:#E4EBE2;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Instrument Sans',-apple-system,'Segoe UI',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.55;
+    -webkit-text-size-adjust:100%;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:0 18px}
+  a{color:var(--leaf)}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(20,40,31,.96);backdrop-filter:blur(6px);
+    overflow-x:auto;white-space:nowrap;
+    -webkit-overflow-scrolling:touch;
+  }
+  nav .wrap{display:flex;gap:4px;padding:10px 14px}
+  nav a{
+    color:#C9D4C4;text-decoration:none;font-size:13px;font-weight:600;
+    padding:7px 13px;border-radius:999px;flex:0 0 auto;
+  }
+  nav a:active,nav a:hover{background:rgba(245,200,75,.18);color:var(--lemon)}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background:linear-gradient(160deg,var(--night) 0%,var(--leaf) 90%);
+    color:var(--paper);
+    padding:46px 0 42px;
+    position:relative;overflow:hidden;
+  }
+  .hero::after{
+    content:"";position:absolute;right:-120px;top:-120px;
+    width:340px;height:340px;border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, var(--lemon), rgba(245,200,75,0) 68%);
+    opacity:.9;
+  }
+  .eyebrow{
+    font-family:'Space Grotesk',monospace;
+    font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--lemon);margin-bottom:14px;
+  }
+  h1{
+    font-family:'Bricolage Grotesque',Georgia,serif;
+    font-weight:800;font-size:clamp(34px,7vw,56px);
+    line-height:1.05;max-width:16ch;
+  }
+  .hero p.sub{margin-top:14px;max-width:52ch;font-size:16.5px;color:#DCE7D9}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:40px 0 4px}
+  .sec-label{
+    font-family:'Space Grotesk',monospace;
+    font-size:12px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--leaf);margin-bottom:6px;
+  }
+  h2{
+    font-family:'Bricolage Grotesque',Georgia,serif;
+    font-weight:800;font-size:clamp(25px,5vw,33px);margin-bottom:8px;
+    display:flex;align-items:center;gap:12px;
+  }
+  .h-icon{
+    flex:0 0 auto;width:44px;height:44px;border-radius:12px;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:22px;line-height:1;
+    background:var(--mist);border:1px solid var(--line);
+  }
+  .sec-note{color:#5A6152;max-width:62ch;margin-bottom:22px;font-size:15px}
+  .sec-note code,.hint code{
+    font-family:'Space Grotesk',monospace;font-size:12.5px;
+    background:var(--mist);padding:2px 6px;border-radius:6px;
+  }
+
+  .card{
+    background:#fff;border:1px solid var(--line);border-radius:16px;
+    padding:20px;margin-bottom:14px;
+  }
+
+  /* ---------- FORM ---------- */
+  .field{margin-bottom:14px}
+  .field > label,.leg{
+    display:block;
+    font-family:'Space Grotesk',monospace;font-size:11.5px;font-weight:700;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+    margin-bottom:7px;
+  }
+  .row{display:flex;flex-wrap:wrap;gap:10px}
+  .row > *{flex:1 1 150px;min-width:0}
+  .inp{
+    width:100%;font-family:'Instrument Sans',sans-serif;font-size:15px;
+    border:1px solid var(--line);border-radius:10px;padding:11px 12px;
+    background:#fff;color:var(--ink);
+  }
+  .inp:focus{outline:2px solid rgba(30,91,65,.35);outline-offset:1px}
+  select.inp{appearance:none;-webkit-appearance:none;cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236B7263' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+
+  /* amount gets the weight it deserves */
+  .amt-wrap{position:relative}
+  .amt-wrap .cur{
+    position:absolute;left:14px;top:50%;transform:translateY(-50%);
+    font-family:'Space Grotesk',monospace;font-weight:700;font-size:20px;color:var(--muted);
+    pointer-events:none;
+  }
+  #txAmount{
+    font-family:'Space Grotesk',monospace;font-weight:700;font-size:24px;
+    padding:12px 12px 12px 38px;
+  }
+
+  /* segmented pickers */
+  .segs{display:flex;flex-wrap:wrap;gap:8px}
+  .seg{
+    flex:1 1 auto;border:1px solid var(--line);background:#fff;border-radius:10px;
+    padding:10px 14px;cursor:pointer;font-family:'Instrument Sans',sans-serif;
+    font-size:14.5px;font-weight:600;color:#4A5147;white-space:nowrap;
+    transition:background .12s ease,border-color .12s ease,color .12s ease;
+  }
+  .seg:hover{background:var(--mist)}
+  .seg[aria-pressed="true"]{background:var(--leaf);border-color:var(--leaf);color:var(--paper)}
+  .seg:focus-visible{outline:2px solid rgba(30,91,65,.45);outline-offset:2px}
+  .segs.tags .seg{flex:0 0 auto}
+
+  .btn{
+    border:none;border-radius:10px;padding:13px 20px;cursor:pointer;
+    font-family:'Instrument Sans',sans-serif;font-weight:700;font-size:15px;
+    background:var(--leaf);color:var(--paper);
+  }
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.ghost{background:#fff;color:#5A6152;border:1px solid var(--line);font-weight:600}
+  .btn.wide{width:100%}
+  .btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+  .btn-row .btn{flex:1 1 auto}
+
+  .msg{margin-top:12px;font-size:13.5px;border-radius:10px;padding:10px 12px;display:none}
+  .msg.show{display:block}
+  .msg.ok{background:rgba(30,91,65,.10);color:#1E5B41}
+  .msg.err{background:rgba(232,85,109,.12);color:#B03350}
+  .msg.wait{background:var(--mist);color:#4A5147}
+
+  /* ---------- SUMMARY / STAT TILES ---------- */
+  .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-bottom:14px}
+  .filters .f{flex:0 1 auto}
+  .filters .f label{
+    display:block;font-family:'Space Grotesk',monospace;font-size:11.5px;font-weight:700;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;
+  }
+  .filters .inp{width:auto}
+
+  .hero-fig{padding-bottom:4px}
+  .hero-fig .lbl{
+    font-family:'Space Grotesk',monospace;font-size:11.5px;font-weight:700;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  }
+  .hero-fig .val{
+    font-family:'Space Grotesk',monospace;font-weight:700;
+    font-size:clamp(40px,10vw,54px);line-height:1.05;color:var(--ink);
+    margin-top:2px;
+  }
+  .hero-fig .delta{font-size:13.5px;color:var(--muted);margin-top:4px}
+  .hero-fig .delta b{font-weight:700}
+  .delta .up{color:#B03350}      /* spending more than last month */
+  .delta .down{color:var(--leaf)} /* spending less */
+  .hero-fig .today{font-size:13.5px;color:var(--muted);margin-top:2px}
+
+  .tiles{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;
+    margin-top:18px;padding-top:16px;border-top:1px solid var(--line);
+  }
+  .tile .lbl{
+    font-family:'Space Grotesk',monospace;font-size:11px;font-weight:700;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  }
+  .tile .val{
+    font-family:'Space Grotesk',monospace;font-weight:700;font-size:22px;
+    line-height:1.2;color:var(--ink);margin-top:2px;
+  }
+  .tile .sub{font-size:12.5px;color:var(--muted)}
+
+  /* ---------- BREAKDOWN BARS ---------- */
+  .bd{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+  .bd h3{
+    font-family:'Space Grotesk',monospace;font-size:11.5px;font-weight:700;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;
+  }
+  .bar-row{display:grid;grid-template-columns:1fr auto;gap:4px 12px;margin-bottom:12px}
+  .bar-row .nm{font-size:14.5px;font-weight:600}
+  .bar-row .amt{
+    font-family:'Space Grotesk',monospace;font-weight:700;font-size:14.5px;
+    font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;
+  }
+  .bar-row .rail{
+    grid-column:1 / -1;height:12px;border-radius:2px;background:var(--track);overflow:hidden;
+  }
+  .bar-row .fill{
+    display:block;height:100%;background:var(--leaf);
+    border-radius:0 4px 4px 0;   /* square at the baseline, rounded data-end */
+    min-width:3px;
+  }
+  .bar-row .meta{
+    grid-column:1 / -1;font-size:12.5px;color:var(--muted);
+    display:flex;justify-content:space-between;gap:10px;
+  }
+
+  /* ---------- TRANSACTION LIST ---------- */
+  .tx-list{list-style:none;margin-top:6px}
+  .tx{
+    display:grid;grid-template-columns:1fr auto auto;gap:2px 12px;align-items:center;
+    padding:12px 0;border-bottom:1px dashed var(--line);
+  }
+  .tx:last-child{border-bottom:none}
+  .tx .top{grid-column:1;font-size:15px;font-weight:600}
+  .tx .when{grid-column:1;font-size:12.5px;color:var(--muted)}
+  .tx .money{
+    grid-column:2;grid-row:1 / span 2;
+    font-family:'Space Grotesk',monospace;font-weight:700;font-size:16px;
+    font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right;
+  }
+  .tx .del{
+    grid-column:3;grid-row:1 / span 2;
+    background:none;border:1px solid var(--line);border-radius:8px;
+    width:30px;height:30px;cursor:pointer;color:var(--muted);font-size:15px;line-height:1;
+  }
+  .tx .del:hover{border-color:var(--melon);color:var(--melon)}
+  .tx .del:disabled{opacity:.4;cursor:not-allowed}
+  .pill{
+    display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.03em;
+    background:var(--mist);color:var(--leaf);padding:2px 9px;border-radius:999px;
+    margin-left:6px;vertical-align:1px;
+  }
+  .pill.type{background:#F1EFE4;color:#5A6152}
+  .empty{
+    text-align:center;padding:26px 10px;color:var(--muted);font-size:14.5px;
+    border:1px dashed var(--line);border-radius:12px;
+  }
+
+  /* ---------- SIGN-IN GATE ---------- */
+  html.locked{overflow:hidden}
+  html.locked body>*:not(#gate){display:none!important}
+  #gate{display:none}
+  html.locked #gate{
+    display:flex;position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:200;
+    flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    padding:28px 20px;
+    background:linear-gradient(160deg,var(--night) 0%,var(--leaf) 90%);
+    color:var(--paper);
+  }
+  #gate .lock{font-size:40px;line-height:1}
+  #gate h1{
+    font-family:'Bricolage Grotesque',Georgia,serif;font-weight:800;
+    font-size:clamp(24px,6vw,34px);margin:14px 0 6px;line-height:1.1;
+  }
+  #gate p{font-size:15px;color:#C9D4C4;max-width:34ch;margin-bottom:22px}
+  #gate .btn-wrap{min-height:44px;display:flex;justify-content:center}
+  #gate .note{
+    margin-top:20px;font-family:'Space Grotesk',monospace;font-size:11px;
+    letter-spacing:.14em;text-transform:uppercase;color:rgba(251,248,240,.45);
+  }
+  #gate .err{
+    margin-top:16px;font-size:13.5px;color:#FFD9DF;max-width:36ch;display:none;
+    background:rgba(232,85,109,.22);border-radius:10px;padding:10px 14px;
+  }
+  #gate .err.show{display:block}
+
+  /* ---------- SETTINGS ---------- */
+  .settings summary{
+    cursor:pointer;font-family:'Space Grotesk',monospace;font-size:12px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;
+  }
+  .hint{font-size:13px;color:var(--muted);margin-top:12px;line-height:1.6}
+
+  footer{
+    margin-top:44px;padding:30px 0 40px;text-align:center;
+    border-top:1px solid var(--line);
+  }
+  footer .mantra{
+    font-family:'Bricolage Grotesque',Georgia,serif;font-weight:800;
+    font-size:clamp(18px,4vw,24px);color:var(--leaf);max-width:28ch;margin:0 auto;
+  }
+  footer small{display:block;margin-top:12px;color:#8A9184;font-size:12px}
+  .signout{
+    background:none;border:none;padding:0;margin-top:12px;cursor:pointer;
+    font-family:'Instrument Sans',sans-serif;font-size:12px;
+    color:#8A9184;text-decoration:underline;
+  }
+
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<div id="gate" role="dialog" aria-modal="true" aria-label="Sign in required">
+  <div class="lock">&#128274;</div>
+  <h1>Money,<br>in order.</h1>
+  <p>This is my private ledger. Sign in with the Google account I've allowed to open it.</p>
+  <div class="btn-wrap" id="gateBtn"></div>
+  <div class="err" id="gateErr" role="alert"></div>
+  <div class="note" id="gateNote">Akshath's ledger</div>
+  <noscript>
+    <div class="err show">This page needs JavaScript to sign you in.</div>
+  </noscript>
+</div>
+
+<nav>
+  <div class="wrap">
+    <a href="#add">Add Spend</a>
+    <a href="#history">My History</a>
+    <a href="#settings">Settings</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Akshath's ledger &middot; Every rupee, logged &middot; Stored in git</div>
+    <h1>Money,<br>in order.</h1>
+    <p class="sub">Every spend goes in the moment it happens — amount, how I paid, what it was for. Each one becomes a commit, so the history is permanent and it's mine.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ============ ADD TRANSACTION ============ -->
+<section id="add">
+  <div class="sec-label">Log it before you forget it</div>
+  <h2><span class="h-icon">&#128176;</span>Add a Transaction</h2>
+  <p class="sec-note">Date and time are already set to right now — change them only if you're logging something after the fact.</p>
+
+  <div class="card">
+    <form id="txForm" novalidate>
+
+      <div class="field">
+        <label for="txAmount">Amount</label>
+        <div class="amt-wrap">
+          <span class="cur" aria-hidden="true">&#8377;</span>
+          <input class="inp" type="number" id="txAmount" inputmode="decimal"
+                 step="0.01" min="0.01" placeholder="0.00" autocomplete="off" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="txDate">When</label>
+        <div class="row">
+          <input class="inp" type="date" id="txDate" aria-label="Date" required>
+          <input class="inp" type="time" id="txTime" aria-label="Time" required>
+          <button class="btn ghost" type="button" id="txNow" style="flex:0 0 auto">Now</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="leg" id="lblType">Transaction type</span>
+        <div class="segs" id="typeSegs" role="group" aria-labelledby="lblType"></div>
+      </div>
+
+      <div class="field">
+        <span class="leg" id="lblTag">Tag</span>
+        <div class="segs tags" id="tagSegs" role="group" aria-labelledby="lblTag"></div>
+      </div>
+
+      <div class="field">
+        <label for="txNote">Note <span style="text-transform:none;letter-spacing:0;font-weight:400">(optional)</span></label>
+        <input class="inp" type="text" id="txNote" maxlength="140"
+               placeholder="What was it for?" autocomplete="off">
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" type="submit" id="txSave">Save transaction</button>
+        <button class="btn ghost" type="button" id="txReset" style="flex:0 0 auto">Clear</button>
+      </div>
+
+      <div class="msg" id="txMsg" role="status" aria-live="polite"></div>
+    </form>
+  </div>
+</section>
+
+<!-- ============ HISTORY ============ -->
+<section id="history">
+  <div class="sec-label">Where the money actually went</div>
+  <h2><span class="h-icon">&#128200;</span>My History</h2>
+  <p class="sec-note">One JSON file per month in the data repo, so a month is one small fetch and the whole ledger stays diffable.</p>
+
+  <div class="card">
+    <div class="filters">
+      <div class="f">
+        <label for="hMonth">Month</label>
+        <input class="inp" type="month" id="hMonth">
+      </div>
+      <div class="f">
+        <label for="hTag">Tag</label>
+        <select class="inp" id="hTag"><option value="">All tags</option></select>
+      </div>
+      <div class="f">
+        <label for="hType">Paid by</label>
+        <select class="inp" id="hType"><option value="">All types</option></select>
+      </div>
+      <div class="f">
+        <label>&nbsp;</label>
+        <button class="btn ghost" type="button" id="hReload">Reload</button>
+      </div>
+    </div>
+
+    <div id="hSummary" hidden>
+      <div class="hero-fig">
+        <div class="lbl" id="hHeroLbl">Total</div>
+        <div class="val" id="hHeroVal">&#8377;0</div>
+        <div class="delta" id="hDelta"></div>
+        <div class="today" id="hToday"></div>
+      </div>
+
+      <div class="tiles">
+        <div class="tile"><div class="lbl">Transactions</div><div class="val" id="hCount">0</div></div>
+        <div class="tile"><div class="lbl">Daily average</div><div class="val" id="hAvg">&#8377;0</div><div class="sub" id="hAvgSub"></div></div>
+        <div class="tile"><div class="lbl">Largest</div><div class="val" id="hMax">&#8377;0</div><div class="sub" id="hMaxSub"></div></div>
+      </div>
+
+      <div class="bd">
+        <h3 id="hBdTitle">Spend by tag</h3>
+        <div id="hBars"></div>
+      </div>
+    </div>
+
+    <div class="msg" id="hMsg" role="status" aria-live="polite"></div>
+    <ul class="tx-list" id="hList"></ul>
+  </div>
+</section>
+
+<!-- ============ SETTINGS ============ -->
+<section id="settings">
+  <div class="sec-label">Where this ledger is stored</div>
+  <h2><span class="h-icon">&#128273;</span>Settings</h2>
+
+  <div class="card">
+    <details class="settings" id="cfgBox">
+      <summary id="cfgSummary">Connection settings</summary>
+      <div class="row" style="margin-top:12px">
+        <input class="inp" type="text" id="cfgOwner" placeholder="GitHub user" aria-label="GitHub user" autocapitalize="off" autocorrect="off" spellcheck="false">
+        <input class="inp" type="text" id="cfgRepo" placeholder="Data repo" aria-label="Data repo" autocapitalize="off" autocorrect="off" spellcheck="false">
+        <input class="inp" type="text" id="cfgFolder" placeholder="Folder" aria-label="Folder" autocapitalize="off" autocorrect="off" spellcheck="false">
+      </div>
+      <div class="row" style="margin-top:10px">
+        <input class="inp" type="password" id="cfgToken" placeholder="Fine-grained token" aria-label="Access token" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+      </div>
+      <div class="btn-row" style="margin-top:10px">
+        <button class="btn" id="cfgSave" type="button">Save &amp; test</button>
+        <button class="btn ghost" id="cfgClear" type="button">Forget token</button>
+      </div>
+      <div class="msg" id="cfgMsg" role="status" aria-live="polite"></div>
+      <p class="hint">
+        Make a <b>fine-grained</b> token at <code>github.com/settings/personal-access-tokens</code>
+        with permission <b>Contents: Read and write</b> on <code>finance_tracking_data</code>.
+        It is stored in this phone's browser only, never in the website's code.
+        A token saved on the fitness page is picked up automatically — same browser, same
+        origin — but that one is scoped to <code>fitness-data</code>, so either add this repo
+        to its repository access or paste a new token here.
+        Anyone with the token can write to that repo, so use &ldquo;Forget token&rdquo; on a shared device.
+      </p>
+    </details>
+  </div>
+</section>
+
+<footer>
+  <div class="mantra">"I can't fix what I don't measure. So I write it down."</div>
+  <small>Akshath's ledger &middot; Sibling of the fitness plan &middot; Consistency is the key</small>
+  <button class="signout" id="signOut" type="button">Sign out</button>
+</footer>
+
+</div>
+
+<script>
+/* ================= SHARED HELPERS ================= */
+var FT = (function(){
+  function $(id){ return document.getElementById(id); }
+  function pad(n){ return (n<10?"0":"") + n; }
+  function say(el, text, kind){ el.textContent = text; el.className = "msg show " + (kind||"ok"); }
+  function mute(el){ el.className = "msg"; el.textContent = ""; }
+  return { $:$, pad:pad, say:say, mute:mute };
+})();
+</script>
+
+<script>
+/* ---------- TRANSACTIONS → GitHub Contents API ----------
+   One JSON file per month. Adding a transaction is read-modify-write:
+   GET the month file for its sha, splice the array, PUT it back. The token
+   lives in this device's localStorage, never in this file. */
+(function(){
+  var $ = FT.$, pad = FT.pad, say = FT.say, mute = FT.mute;
+
+  var CFG_KEY   = "finance-tracker-cfg";
+  var FIT_KEY   = "fitness-upload-cfg";      // same origin as the fitness page — reuse its token
+  var DEFAULTS  = { owner:"AkshRk", repo:"finance_tracking_data", folder:"transactions" };
+
+  var TYPES = ["Cash", "Online", "Card"];
+  var DEFAULT_TYPE = "Online";
+  var TAGS = [
+    { id:"grocery",    label:"Grocery",    icon:"🛒" },
+    { id:"restaurant", label:"Restaurant", icon:"🍽️" },
+    { id:"misc",       label:"Misc",       icon:"✨" },
+    { id:"charity",    label:"Charity",    icon:"🤝" },
+    { id:"lending",    label:"Lending",    icon:"🔁" }
+  ];
+  var DEFAULT_TAG = "misc";
+
+  var state = { type: DEFAULT_TYPE, tag: DEFAULT_TAG, email: null, months: {}, busy: false };
+
+  /* ---- config ---- */
+  function readJson(key){
+    try{ return JSON.parse(localStorage.getItem(key) || "{}") || {}; }catch(e){ return {}; }
+  }
+  function cfg(){
+    var c = readJson(CFG_KEY);
+    return {
+      owner:  c.owner  || DEFAULTS.owner,
+      repo:   c.repo   || DEFAULTS.repo,
+      folder: c.folder || DEFAULTS.folder,
+      // Inherit the fitness page's token when this page has none of its own.
+      token:  c.token  || readJson(FIT_KEY).token || ""
+    };
+  }
+  function saveCfg(patch){
+    var c = readJson(CFG_KEY);
+    for (var k in patch) c[k] = patch[k];
+    try{ localStorage.setItem(CFG_KEY, JSON.stringify(c)); }catch(e){}
+  }
+
+  /* ---- formatting ---- */
+  var rupee = "₹";
+  function nf(min, max){
+    try{ return new Intl.NumberFormat("en-IN", { minimumFractionDigits:min, maximumFractionDigits:max }); }
+    catch(e){ return { format:function(n){ return Number(n).toFixed(max); } }; }
+  }
+  var nf2 = nf(2,2), nf0 = nf(0,0), nf1 = nf(0,1);
+
+  function money(n){ return rupee + nf2.format(Number(n) || 0); }
+  function moneyBig(n){                       // stat-tile / hero: compact past a lakh
+    n = Number(n) || 0;
+    if (n >= 10000000) return rupee + nf1.format(n/10000000) + " Cr";
+    if (n >= 100000)   return rupee + nf1.format(n/100000) + " L";
+    return rupee + nf0.format(Math.round(n));
+  }
+
+  function todayStr(){ var d=new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+  function nowTimeStr(){ var d=new Date(); return pad(d.getHours())+":"+pad(d.getMinutes()); }
+  function monthOf(dateStr){ return String(dateStr).slice(0,7); }
+  function monthLabel(mk){
+    var p = String(mk).split("-");
+    var d = new Date(Number(p[0]), Number(p[1]) - 1, 1);
+    if (isNaN(d)) return mk;
+    return d.toLocaleDateString(undefined, { month:"long", year:"numeric" });
+  }
+  function prevMonth(mk){
+    var p = String(mk).split("-"), y = Number(p[0]), m = Number(p[1]) - 1;
+    if (m === 0){ y--; m = 12; }
+    return y + "-" + pad(m);
+  }
+  function localIso(dateStr, timeStr){
+    var d = new Date(dateStr + "T" + timeStr + ":00");
+    var off = isNaN(d) ? 0 : -d.getTimezoneOffset();
+    var sign = off >= 0 ? "+" : "-", abs = Math.abs(off);
+    return dateStr + "T" + timeStr + ":00" + sign + pad(Math.floor(abs/60)) + ":" + pad(abs%60);
+  }
+  function prettyWhen(t){
+    var d = new Date(t.at || (t.date + "T" + (t.time || "00:00")));
+    if (isNaN(d)) return t.date + " " + (t.time || "");
+    return d.toLocaleDateString(undefined, { weekday:"short", day:"numeric", month:"short" })
+         + " · " + d.toLocaleTimeString(undefined, { hour:"numeric", minute:"2-digit" });
+  }
+  function tagOf(id){
+    for (var i=0;i<TAGS.length;i++) if (TAGS[i].id === id) return TAGS[i];
+    return { id:id, label:id, icon:"" };
+  }
+
+  /* ---- base64 that survives non-ASCII notes ---- */
+  function b64enc(str){
+    var bytes = new TextEncoder().encode(str), bin = "";
+    for (var i=0;i<bytes.length;i+=0x8000){
+      bin += String.fromCharCode.apply(null, bytes.subarray(i, i+0x8000));
+    }
+    return btoa(bin);
+  }
+  function b64dec(b64){
+    var bin = atob(String(b64).replace(/\s+/g, ""));
+    var bytes = new Uint8Array(bin.length);
+    for (var i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+
+  /* ---- GitHub API ---- */
+  function encPath(p){ return p.split("/").map(encodeURIComponent).join("/"); }
+  function api(path, opts){
+    opts = opts || {};
+    var c = cfg();
+    var headers = { "Accept":"application/vnd.github+json", "X-GitHub-Api-Version":"2022-11-28" };
+    if (c.token) headers["Authorization"] = "Bearer " + c.token;
+    if (opts.body) headers["Content-Type"] = "application/json";
+    return fetch("https://api.github.com" + path, {
+      method: opts.method || "GET",
+      headers: headers,
+      cache: "no-store",
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    }).then(function(r){
+      return r.text().then(function(t){
+        var data = null;
+        try{ data = t ? JSON.parse(t) : null; }catch(e){}
+        if (!r.ok){
+          var err = new Error((data && data.message) || ("HTTP " + r.status));
+          err.status = r.status;
+          throw err;
+        }
+        return data;
+      });
+    });
+  }
+  function monthPath(mk){ return cfg().folder + "/" + mk + ".json"; }
+  function monthUrl(mk){
+    var c = cfg();
+    return "/repos/" + c.owner + "/" + c.repo + "/contents/" + encPath(monthPath(mk));
+  }
+
+  /* Fetch a month file. Missing file is a normal empty month, not an error. */
+  function fetchMonth(mk){
+    return api(monthUrl(mk)).then(function(res){
+      var doc = { month: mk, transactions: [] };
+      if (res && res.content){
+        try{
+          var parsed = JSON.parse(b64dec(res.content));
+          if (parsed && Array.isArray(parsed.transactions)) doc = parsed;
+          else if (Array.isArray(parsed)) doc.transactions = parsed;   // tolerate a bare array
+        }catch(e){
+          throw new Error("The stored file for " + mk + " isn't valid JSON — fix it on GitHub first.");
+        }
+      }
+      var entry = { sha: res ? res.sha : null, doc: doc };
+      state.months[mk] = entry;
+      return entry;
+    }).catch(function(err){
+      if (err.status === 404){
+        var entry = { sha: null, doc: { month: mk, transactions: [] } };
+        state.months[mk] = entry;
+        return entry;
+      }
+      throw err;
+    });
+  }
+
+  /* Read-modify-write with a retry, so a commit from another device doesn't clobber. */
+  function commitMonth(mk, mutate, message, attempt){
+    attempt = attempt || 0;
+    return fetchMonth(mk).then(function(entry){
+      var doc = JSON.parse(JSON.stringify(entry.doc));
+      doc.month = mk;
+      var changed = mutate(doc);
+      if (changed === false) return entry;
+      doc.transactions.sort(function(a,b){
+        return String(b.at || "").localeCompare(String(a.at || ""));
+      });
+      doc.updated = new Date().toISOString();
+      doc.count = doc.transactions.length;
+      doc.total = Math.round(doc.transactions.reduce(function(s,t){ return s + (Number(t.amount)||0); }, 0) * 100) / 100;
+
+      var body = { message: message, content: b64enc(JSON.stringify(doc, null, 2) + "\n") };
+      if (entry.sha) body.sha = entry.sha;
+
+      return api(monthUrl(mk), { method:"PUT", body:body }).then(function(res){
+        var saved = { sha: res && res.content ? res.content.sha : null, doc: doc };
+        state.months[mk] = saved;
+        return saved;
+      }).catch(function(err){
+        // 409/422 = someone else committed between our GET and PUT. Re-read and redo.
+        if ((err.status === 409 || err.status === 422) && attempt < 3){
+          return commitMonth(mk, mutate, message, attempt + 1);
+        }
+        throw err;
+      });
+    });
+  }
+
+  /* ================= ADD FORM ================= */
+  var amountEl = $("txAmount"), dateEl = $("txDate"), timeEl = $("txTime"),
+      noteEl = $("txNote"), saveBtn = $("txSave"), txMsg = $("txMsg");
+
+  function buildSegs(host, items, get, set){
+    host.innerHTML = "";
+    items.forEach(function(it){
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "seg";
+      b.textContent = it.icon ? it.icon + " " + it.label : it.label;
+      b.setAttribute("aria-pressed", String(get() === it.id));
+      b.onclick = function(){
+        set(it.id);
+        Array.prototype.forEach.call(host.children, function(c, i){
+          c.setAttribute("aria-pressed", String(items[i].id === it.id));
+        });
+      };
+      host.appendChild(b);
+    });
+  }
+
+  function stampNow(){ dateEl.value = todayStr(); timeEl.value = nowTimeStr(); }
+
+  function resetForm(){
+    amountEl.value = "";
+    noteEl.value = "";
+    stampNow();
+    state.type = DEFAULT_TYPE; state.tag = DEFAULT_TAG;
+    buildSegs($("typeSegs"), TYPES.map(function(t){ return {id:t, label:t}; }),
+      function(){ return state.type; }, function(v){ state.type = v; });
+    buildSegs($("tagSegs"), TAGS, function(){ return state.tag; }, function(v){ state.tag = v; });
+  }
+
+  $("txNow").onclick = function(){ stampNow(); };
+  $("txReset").onclick = function(){ resetForm(); mute(txMsg); };
+
+  $("txForm").onsubmit = function(e){
+    e.preventDefault();
+    if (state.busy) return;
+
+    var c = cfg();
+    if (!c.token){
+      say(txMsg, "Add your GitHub token in Settings first — that's where this saves to.", "err");
+      $("cfgBox").open = true;
+      $("settings").scrollIntoView({ behavior:"smooth" });
+      return;
+    }
+
+    var amount = Math.round(parseFloat(amountEl.value) * 100) / 100;
+    if (!isFinite(amount) || amount <= 0){
+      say(txMsg, "Enter an amount greater than zero.", "err"); amountEl.focus(); return;
+    }
+    if (!dateEl.value){ say(txMsg, "Pick a date.", "err"); dateEl.focus(); return; }
+    var time = timeEl.value || "00:00";
+
+    var mk = monthOf(dateEl.value);
+    var tx = {
+      id: dateEl.value + "T" + time.replace(":", "") + "-" +
+          Math.random().toString(36).slice(2, 8),
+      date: dateEl.value,
+      time: time,
+      at: localIso(dateEl.value, time),
+      amount: amount,
+      type: state.type,
+      tag: state.tag,
+      note: (noteEl.value || "").trim(),
+      by: state.email || null,
+      created: new Date().toISOString()
+    };
+
+    var msg = money(amount) + " · " + tagOf(tx.tag).label + " · " + tx.type +
+              (tx.note ? " — " + tx.note : "") + " (" + tx.date + ")";
+
+    state.busy = true;
+    saveBtn.disabled = true; saveBtn.textContent = "Saving…";
+    say(txMsg, "Committing to " + c.owner + "/" + c.repo + "…", "wait");
+
+    commitMonth(mk, function(doc){ doc.transactions.push(tx); }, msg)
+      .then(function(){
+        say(txMsg, "Saved — " + msg, "ok");
+        resetForm();
+        amountEl.focus();
+        if ($("hMonth").value !== mk) $("hMonth").value = mk;
+        renderMonth(mk, true);
+      })
+      .catch(function(err){
+        say(txMsg, explain(err, c), "err");
+      })
+      .then(function(){
+        state.busy = false;
+        saveBtn.disabled = false; saveBtn.textContent = "Save transaction";
+      });
+  };
+
+  function explain(err, c){
+    if (err.status === 401) return "Token rejected (401) — expired or mistyped.";
+    if (err.status === 403) return "Forbidden (403) — the token needs Contents: Read and write.";
+    if (err.status === 404) return "Can't see " + c.owner + "/" + c.repo + ". Create the repo, or add it to the token's repository access.";
+    return "Couldn't save: " + (err.message || "unknown error");
+  }
+
+  /* ================= HISTORY ================= */
+  var hMonth = $("hMonth"), hTag = $("hTag"), hType = $("hType"),
+      hMsg = $("hMsg"), hList = $("hList"), hSummary = $("hSummary");
+
+  TAGS.forEach(function(t){
+    var o = document.createElement("option");
+    o.value = t.id; o.textContent = t.label;
+    hTag.appendChild(o);
+  });
+  TYPES.forEach(function(t){
+    var o = document.createElement("option");
+    o.value = t; o.textContent = t;
+    hType.appendChild(o);
+  });
+
+  function visible(list){
+    var tag = hTag.value, type = hType.value;
+    return list.filter(function(t){
+      return (!tag || t.tag === tag) && (!type || t.type === type);
+    });
+  }
+  function sum(list){
+    return list.reduce(function(s,t){ return s + (Number(t.amount)||0); }, 0);
+  }
+
+  function renderSummary(mk, all){
+    var list = visible(all);
+    var total = sum(list);
+    var filtered = !!(hTag.value || hType.value);
+
+    $("hHeroLbl").textContent = (filtered ? "Filtered total" : "Total") + " · " + monthLabel(mk);
+    $("hHeroVal").textContent = moneyBig(total);
+
+    // Days elapsed: a month in progress averages over days so far, not 30.
+    var parts = mk.split("-"), y = Number(parts[0]), m = Number(parts[1]);
+    var now = new Date();
+    var daysInMonth = new Date(y, m, 0).getDate();
+    var isCurrent = (now.getFullYear() === y && now.getMonth() + 1 === m);
+    var days = isCurrent ? now.getDate() : daysInMonth;
+
+    $("hCount").textContent = String(list.length);
+    $("hAvg").textContent = moneyBig(days ? total / days : 0);
+    $("hAvgSub").textContent = "over " + days + " day" + (days === 1 ? "" : "s");
+
+    var biggest = list.reduce(function(a,b){
+      return (Number(b.amount)||0) > (Number(a.amount)||0) ? b : a;
+    }, list[0] || null);
+    $("hMax").textContent = biggest ? moneyBig(biggest.amount) : rupee + "0";
+    $("hMaxSub").textContent = biggest
+      ? tagOf(biggest.tag).label + " · " + biggest.date
+      : "—";
+
+    // Today's running total, only meaningful while the month is live.
+    var todayEl = $("hToday");
+    if (isCurrent){
+      var t = todayStr();
+      var todaySum = sum(list.filter(function(x){ return x.date === t; }));
+      todayEl.textContent = "Today so far: " + money(todaySum);
+    } else {
+      todayEl.textContent = "";
+    }
+
+    // Delta vs the previous month — for spending, up is bad.
+    var deltaEl = $("hDelta");
+    var pm = prevMonth(mk), prior = state.months[pm];
+    if (filtered){
+      deltaEl.textContent = "Showing " + list.length + " of " + all.length + " transactions this month.";
+    } else if (prior){
+      var prevTotal = sum(prior.doc.transactions || []);
+      if (prevTotal > 0){
+        var diff = total - prevTotal, pct = Math.round(Math.abs(diff) / prevTotal * 100);
+        var dir = diff >= 0 ? "up" : "down";
+        deltaEl.innerHTML = "<b class='" + dir + "'>" + (diff >= 0 ? "▲ " : "▼ ") + pct +
+          "%</b> vs " + monthLabel(pm) + " (" + moneyBig(prevTotal) + ")";
+      } else {
+        deltaEl.textContent = "Nothing logged in " + monthLabel(pm) + " to compare against.";
+      }
+    } else {
+      deltaEl.textContent = "";
+    }
+
+    renderBars(list);
+    hSummary.hidden = false;
+  }
+
+  /* Nominal categories, one measure — every bar wears the same hue.
+     Colouring each tag would re-encode what bar length already shows. */
+  function renderBars(list){
+    var host = $("hBars");
+    host.innerHTML = "";
+
+    // Pinning a tag would leave a one-bar tag chart, so switch the axis to payment type.
+    var byTag = !hTag.value;
+    var key = byTag ? "tag" : "type";
+    $("hBdTitle").textContent = byTag ? "Spend by tag" : "Spend by payment type";
+
+    var groups = {};
+    list.forEach(function(t){
+      var k = t[key] || "misc";
+      if (!groups[k]) groups[k] = { total:0, count:0 };
+      groups[k].total += Number(t.amount) || 0;
+      groups[k].count++;
+    });
+
+    var rows = Object.keys(groups).map(function(k){
+      return { key:k, total:groups[k].total, count:groups[k].count };
+    }).sort(function(a,b){ return b.total - a.total; });
+
+    if (!rows.length){ host.innerHTML = "<p class='empty'>Nothing to break down yet.</p>"; return; }
+
+    var max = rows[0].total || 1, grand = sum(list) || 1;
+
+    rows.forEach(function(r){
+      var name = byTag ? (tagOf(r.key).icon + " " + tagOf(r.key).label) : r.key;
+      var share = Math.round(r.total / grand * 100);
+
+      var row = document.createElement("div");
+      row.className = "bar-row";
+
+      var nm = document.createElement("div");
+      nm.className = "nm"; nm.textContent = name;
+
+      var amt = document.createElement("div");
+      amt.className = "amt"; amt.textContent = money(r.total);
+
+      var rail = document.createElement("div");
+      rail.className = "rail"; rail.setAttribute("aria-hidden", "true");
+      var fill = document.createElement("i");
+      fill.className = "fill";
+      fill.style.width = Math.max(1, r.total / max * 100) + "%";
+      rail.appendChild(fill);
+
+      var meta = document.createElement("div");
+      meta.className = "meta";
+      var left = document.createElement("span");
+      left.textContent = r.count + " transaction" + (r.count === 1 ? "" : "s");
+      var right = document.createElement("span");
+      right.textContent = share + "% of the month";
+      meta.appendChild(left); meta.appendChild(right);
+
+      row.appendChild(nm); row.appendChild(amt);
+      row.appendChild(rail); row.appendChild(meta);
+      host.appendChild(row);
+    });
+  }
+
+  function renderList(mk, all){
+    var list = visible(all);
+    hList.innerHTML = "";
+
+    if (!list.length){
+      var li = document.createElement("li");
+      li.innerHTML = "<p class='empty'>" +
+        (all.length ? "No transactions match those filters."
+                    : "Nothing logged for " + monthLabel(mk) + " yet.") + "</p>";
+      hList.appendChild(li);
+      return;
+    }
+
+    list.forEach(function(t){
+      var li = document.createElement("li");
+      li.className = "tx";
+
+      var top = document.createElement("div");
+      top.className = "top";
+      top.appendChild(document.createTextNode(t.note || tagOf(t.tag).label));
+      var pTag = document.createElement("span");
+      pTag.className = "pill";
+      pTag.textContent = tagOf(t.tag).icon + " " + tagOf(t.tag).label;
+      var pType = document.createElement("span");
+      pType.className = "pill type";
+      pType.textContent = t.type;
+      top.appendChild(pTag); top.appendChild(pType);
+
+      var when = document.createElement("div");
+      when.className = "when";
+      when.textContent = prettyWhen(t);
+
+      var money$ = document.createElement("div");
+      money$.className = "money";
+      money$.textContent = money(t.amount);
+
+      var del = document.createElement("button");
+      del.className = "del"; del.type = "button";
+      del.textContent = "×";
+      del.title = "Delete this transaction";
+      del.setAttribute("aria-label", "Delete " + money(t.amount) + " " + tagOf(t.tag).label);
+      del.onclick = function(){ removeTx(mk, t, del); };
+
+      li.appendChild(top); li.appendChild(when);
+      li.appendChild(money$); li.appendChild(del);
+      hList.appendChild(li);
+    });
+  }
+
+  function removeTx(mk, tx, btn){
+    if (!window.confirm("Delete " + money(tx.amount) + " · " + tagOf(tx.tag).label +
+        (tx.note ? " (" + tx.note + ")" : "") + "?\n\nThis commits the removal to git.")) return;
+
+    btn.disabled = true;
+    say(hMsg, "Removing…", "wait");
+
+    var msg = "Remove " + money(tx.amount) + " · " + tagOf(tx.tag).label +
+              " · " + tx.type + " (" + tx.date + ")";
+
+    commitMonth(mk, function(doc){
+      var before = doc.transactions.length;
+      doc.transactions = doc.transactions.filter(function(x){ return x.id !== tx.id; });
+      if (doc.transactions.length === before) return false;   // already gone elsewhere
+    }, msg).then(function(){
+      say(hMsg, "Removed.", "ok");
+      paint(mk);
+    }).catch(function(err){
+      btn.disabled = false;
+      say(hMsg, explain(err, cfg()), "err");
+    });
+  }
+
+  function paint(mk){
+    var entry = state.months[mk];
+    if (!entry) return;
+    // Sort on read too — never trust the stored order, in case a file was
+    // hand-edited on GitHub or written by something other than this page.
+    var all = (entry.doc.transactions || []).slice().sort(function(a,b){
+      return String(b.at || b.date || "").localeCompare(String(a.at || a.date || ""));
+    });
+    renderSummary(mk, all);
+    renderList(mk, all);
+  }
+
+  function renderMonth(mk, quiet){
+    var c = cfg();
+    if (!c.token){
+      hSummary.hidden = true;
+      hList.innerHTML = "";
+      say(hMsg, "Add your GitHub token in Settings to load your history.", "err");
+      return Promise.resolve();
+    }
+    if (!quiet) say(hMsg, "Loading " + monthLabel(mk) + "…", "wait");
+
+    return fetchMonth(mk).then(function(){
+      // Previous month, for the delta. A miss here just hides the comparison.
+      return fetchMonth(prevMonth(mk)).catch(function(){ return null; });
+    }).then(function(){
+      mute(hMsg);
+      paint(mk);
+    }).catch(function(err){
+      hSummary.hidden = true;
+      hList.innerHTML = "";
+      say(hMsg, explain(err, c), "err");
+    });
+  }
+
+  hMonth.onchange = function(){ if (hMonth.value) renderMonth(hMonth.value); };
+  hTag.onchange = function(){ if (state.months[hMonth.value]) paint(hMonth.value); };
+  hType.onchange = function(){ if (state.months[hMonth.value]) paint(hMonth.value); };
+  $("hReload").onclick = function(){ if (hMonth.value) renderMonth(hMonth.value); };
+
+  /* ================= SETTINGS ================= */
+  var cfgMsg = $("cfgMsg");
+  function summary(text){ $("cfgSummary").textContent = "Connection settings" + (text ? " — " + text : ""); }
+  function fillCfg(){
+    var c = cfg();
+    $("cfgOwner").value = c.owner;
+    $("cfgRepo").value = c.repo;
+    $("cfgFolder").value = c.folder;
+    $("cfgToken").value = "";
+    $("cfgToken").placeholder = c.token
+      ? "Token available on this device — paste a new one to replace"
+      : "Fine-grained token (github_pat_…)";
+  }
+  function test(){
+    var c = cfg();
+    if (!c.token){ say(cfgMsg, "Paste a token to connect.", "err"); return; }
+    say(cfgMsg, "Checking…", "wait");
+    api("/user").then(function(u){
+      return api("/repos/" + c.owner + "/" + c.repo).then(function(r){
+        say(cfgMsg, "Connected as " + u.login + " → " + r.full_name + " (" + r.visibility +
+                    "). Ledger path: " + c.folder + "/YYYY-MM.json", "ok");
+        summary("connected as " + u.login);
+        if (hMonth.value) renderMonth(hMonth.value, true);
+      });
+    }).catch(function(err){
+      say(cfgMsg, explain(err, c), "err");
+      summary("not connected");
+    });
+  }
+  $("cfgSave").onclick = function(){
+    saveCfg({
+      owner:  ($("cfgOwner").value  || "").trim() || DEFAULTS.owner,
+      repo:   ($("cfgRepo").value   || "").trim() || DEFAULTS.repo,
+      folder: (($("cfgFolder").value || "").trim() || DEFAULTS.folder).replace(/^\/+|\/+$/g, "")
+    });
+    var t = ($("cfgToken").value || "").trim();
+    if (t) saveCfg({ token: t });
+    state.months = {};
+    fillCfg();
+    test();
+  };
+  $("cfgClear").onclick = function(){
+    saveCfg({ token:"" });
+    fillCfg();
+    summary("no token on this device");
+    say(cfgMsg, "Token removed from this page. (The fitness page keeps its own copy — clear it there too.)", "ok");
+  };
+
+  /* ================= INIT ================= */
+  window.__financeReady = function(email){
+    state.email = email || null;
+    resetForm();
+    fillCfg();
+    var mk = monthOf(todayStr());
+    hMonth.value = mk;
+    if (cfg().token){ summary("token ready"); renderMonth(mk); }
+    else { $("cfgBox").open = true; summary("add a token to start");
+           say(hMsg, "Add your GitHub token in Settings to load your history.", "err"); }
+  };
+})();
+</script>
+
+<script>
+/* ---------- SIGN-IN GATE (Google Identity Services) ----------
+   A curtain, not a lock: GitHub Pages serves this file to anyone, so the
+   markup is already on the visitor's machine before this runs. It keeps a
+   casual onlooker out; it does not keep a determined one out. The transaction
+   data itself lives in the private data repo, behind the token. */
+(function(){
+
+  /* Same OAuth Client ID as the fitness page — both are served from the same
+     origin (akshrk.github.io), which is what Google authorises, so no change
+     is needed in the Google Cloud Console. */
+  var CLIENT_ID = "954346523827-usak41j5lkfaeb0shk79obep0tdcrp1h.apps.googleusercontent.com";
+
+  /* SHA-256 of each allowed email, lowercased and trimmed. Same list as the
+     fitness page. A rejected sign-in prints its own hash to the browser
+     console, which is the easiest way to collect a new one. */
+  var ALLOW = [
+    "55638b341f57592050083c0e0e1d1d961e550753d9e43247e6ec365f00504cf6",
+    "84f18fe877fbf52a7108ef519215b8e0927408fa5d1aac061923f3275b712364"
+  ];
+
+  var REMEMBER_DAYS = 30;
+  var SKEY = "finance-gate";
+  var FIT_SKEY = "fitness-gate";   // same origin — a live fitness session counts here too
+
+  var gate = document.getElementById("gate"),
+      errEl = document.getElementById("gateErr"),
+      noteEl = document.getElementById("gateNote");
+
+  function fail(text){ errEl.textContent = text; errEl.className = "err show"; }
+  function clearErr(){ errEl.className = "err"; errEl.textContent = ""; }
+
+  function unlock(email){
+    document.documentElement.classList.remove("locked");
+    if (gate) gate.style.display = "none";
+    var out = document.getElementById("signOut");
+    if (out) out.textContent = "Sign out" + (email ? " (" + email + ")" : "");
+    if (window.__financeReady) window.__financeReady(email);
+  }
+
+  function sha256(text){
+    var bytes = new TextEncoder().encode(text);
+    return crypto.subtle.digest("SHA-256", bytes).then(function(buf){
+      return Array.prototype.map.call(new Uint8Array(buf), function(b){
+        return ("0" + b.toString(16)).slice(-2);
+      }).join("");
+    });
+  }
+
+  function allowed(email){
+    var e = String(email || "").trim().toLowerCase();
+    if (!e) return Promise.resolve(false);
+    return sha256(e).then(function(hash){
+      if (ALLOW.indexOf(hash) >= 0) return true;
+      console.log("[gate] " + e + " is not on the list. Its hash is: " + hash);
+      return false;
+    });
+  }
+
+  /* Remembered session — re-checked against ALLOW on every load, so removing
+     someone from the list locks them out even if they signed in before. */
+  function remember(email){
+    try{
+      localStorage.setItem(SKEY, JSON.stringify({
+        email: email,
+        exp: Date.now() + REMEMBER_DAYS * 86400000
+      }));
+    }catch(e){}
+  }
+  function forget(){ try{ localStorage.removeItem(SKEY); }catch(e){} }
+  function readKey(key){
+    try{
+      var s = JSON.parse(localStorage.getItem(key) || "null");
+      if (s && s.email && s.exp > Date.now()) return s.email;
+    }catch(e){}
+    return null;
+  }
+  function saved(){ return readKey(SKEY) || readKey(FIT_SKEY); }
+
+  function decodeJwt(token){
+    var part = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    while (part.length % 4) part += "=";
+    var raw = atob(part);
+    var json = decodeURIComponent(raw.split("").map(function(c){
+      return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(""));
+    return JSON.parse(json);
+  }
+
+  function onCredential(resp){
+    clearErr();
+    var claims;
+    try{ claims = decodeJwt(resp.credential); }
+    catch(e){ fail("Couldn't read the response from Google."); return; }
+
+    if (claims.aud !== CLIENT_ID){ fail("That sign-in was issued for a different app."); return; }
+    if (claims.exp && claims.exp * 1000 < Date.now()){ fail("That sign-in has expired. Try again."); return; }
+    if (!claims.email || claims.email_verified !== true){
+      fail("That Google account has no verified email address."); return;
+    }
+
+    allowed(claims.email).then(function(ok){
+      if (ok){ remember(claims.email); unlock(claims.email); }
+      else fail(claims.email + " isn't on the allowed list.");
+    });
+  }
+
+  /* Called by the Google script's onload/onerror below. */
+  window.__gateBoot = function(loadFailed){
+    if (document.documentElement.className.indexOf("locked") < 0) return;  // already in
+    if (loadFailed){
+      fail("Couldn't load Google Sign-In. Check your connection or any content blocker.");
+      return;
+    }
+    if (!CLIENT_ID){
+      fail("Sign-in isn't configured yet — CLIENT_ID is empty in index.html.");
+      return;
+    }
+    if (!window.google || !google.accounts || !google.accounts.id){
+      fail("Google Sign-In didn't initialise. Try reloading.");
+      return;
+    }
+    google.accounts.id.initialize({
+      client_id: CLIENT_ID,
+      callback: onCredential,
+      auto_select: true,
+      cancel_on_tap_outside: false
+    });
+    google.accounts.id.renderButton(document.getElementById("gateBtn"), {
+      theme: "filled_black", size: "large", shape: "pill", text: "signin_with", width: 260
+    });
+    google.accounts.id.prompt();
+    noteEl.textContent = "Akshath's ledger · allowed accounts only";
+  };
+
+  var out = document.getElementById("signOut");
+  if (out) out.onclick = function(){
+    forget();
+    try{ if (window.google && google.accounts && google.accounts.id) google.accounts.id.disableAutoSelect(); }catch(e){}
+    location.reload();
+  };
+
+  // Skip the button entirely if this device signed in recently and is still allowed.
+  var prior = saved();
+  if (prior) allowed(prior).then(function(ok){ if (ok) unlock(prior); else forget(); });
+})();
+</script>
+<script src="https://accounts.google.com/gsi/client" async defer
+        onload="window.__gateBoot && window.__gateBoot(false)"
+        onerror="window.__gateBoot && window.__gateBoot(true)"></script>
+
+</body>
+</html>
