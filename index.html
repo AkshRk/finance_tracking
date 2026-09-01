@@ -3,258 +3,223 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Akshath — Money In Order</title>
+<meta name="color-scheme" content="light">
+<title>Finance Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --night:#14281F;
-    --leaf:#1E5B41;
-    --lemon:#F5C84B;
-    --melon:#E8556D;
-    --paper:#FBF8F0;
-    --ink:#20281F;
-    --mist:#E8EBDD;
-    --line:#D8DCC8;
-    --muted:#6B7263;
-    --track:#E4EBE2;
+    --bg:#F5F7FA;
+    --surface:#FFFFFF;
+    --ink:#0F1B2A;
+    --muted:#5B6B7C;
+    --line:#E3E8EE;
+    --line-strong:#CBD5E1;
+    --navy:#0C2340;
+    --accent:#0E7C66;
+    --accent-weak:#E8F2EF;
+    --danger:#B3261E;
+    --r:10px;
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  html{scroll-behavior:smooth}
   body{
-    font-family:'Instrument Sans',-apple-system,'Segoe UI',sans-serif;
-    background:var(--paper);
-    color:var(--ink);
-    line-height:1.55;
+    font-family:Inter,-apple-system,'Segoe UI',Roboto,sans-serif;
+    background:var(--bg);color:var(--ink);
+    line-height:1.5;font-size:15px;
     -webkit-text-size-adjust:100%;
+    font-feature-settings:"cv05","ss01";
   }
-  .wrap{max-width:880px;margin:0 auto;padding:0 18px}
-  a{color:var(--leaf)}
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px}
+  a{color:var(--accent)}
 
-  /* ---------- NAV ---------- */
-  nav{
-    position:sticky;top:0;z-index:50;
-    background:rgba(20,40,31,.96);backdrop-filter:blur(6px);
-    overflow-x:auto;white-space:nowrap;
-    -webkit-overflow-scrolling:touch;
+  /* ---------- APP BAR ---------- */
+  .appbar{background:var(--navy);color:#fff}
+  .appbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:56px}
+  .brand{display:flex;align-items:center;gap:10px;min-width:0}
+  .brand .mark{
+    width:28px;height:28px;border-radius:7px;flex:0 0 auto;
+    background:var(--accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:15px;
   }
-  nav .wrap{display:flex;gap:4px;padding:10px 14px}
-  nav a{
-    color:#C9D4C4;text-decoration:none;font-size:13px;font-weight:600;
-    padding:7px 13px;border-radius:999px;flex:0 0 auto;
+  .brand .name{font-weight:600;font-size:15.5px;letter-spacing:-.01em;white-space:nowrap}
+  .who{display:flex;align-items:center;gap:14px;min-width:0;font-size:13px}
+  .who #whoAmI{
+    color:#B9C6D4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:38vw;
   }
-  nav a:active,nav a:hover{background:rgba(245,200,75,.18);color:var(--lemon)}
+  .signout{
+    background:none;border:1px solid rgba(255,255,255,.22);border-radius:7px;
+    color:#DCE5EE;font:inherit;font-size:12.5px;padding:5px 11px;cursor:pointer;white-space:nowrap;
+  }
+  .signout:hover{background:rgba(255,255,255,.08)}
 
-  /* ---------- HERO ---------- */
-  .hero{
-    background:linear-gradient(160deg,var(--night) 0%,var(--leaf) 90%);
-    color:var(--paper);
-    padding:46px 0 42px;
-    position:relative;overflow:hidden;
+  /* ---------- TABS ---------- */
+  .tabs{
+    background:var(--surface);border-bottom:1px solid var(--line);
+    position:sticky;top:0;z-index:40;overflow-x:auto;
   }
-  .hero::after{
-    content:"";position:absolute;right:-120px;top:-120px;
-    width:340px;height:340px;border-radius:50%;
-    background:radial-gradient(circle at 35% 35%, var(--lemon), rgba(245,200,75,0) 68%);
-    opacity:.9;
+  .tabs .wrap{display:flex;gap:22px}
+  .tabs a{
+    color:var(--muted);text-decoration:none;font-size:13.5px;font-weight:500;
+    padding:13px 0;border-bottom:2px solid transparent;white-space:nowrap;
   }
-  .eyebrow{
-    font-family:'Space Grotesk',monospace;
-    font-size:12px;letter-spacing:.22em;text-transform:uppercase;
-    color:var(--lemon);margin-bottom:14px;
-  }
-  h1{
-    font-family:'Bricolage Grotesque',Georgia,serif;
-    font-weight:800;font-size:clamp(34px,7vw,56px);
-    line-height:1.05;max-width:16ch;
-  }
-  .hero p.sub{margin-top:14px;max-width:52ch;font-size:16.5px;color:#DCE7D9}
+  .tabs a:hover{color:var(--ink)}
 
   /* ---------- SECTIONS ---------- */
-  section{padding:40px 0 4px}
-  .sec-label{
-    font-family:'Space Grotesk',monospace;
-    font-size:12px;letter-spacing:.2em;text-transform:uppercase;
-    color:var(--leaf);margin-bottom:6px;
-  }
-  h2{
-    font-family:'Bricolage Grotesque',Georgia,serif;
-    font-weight:800;font-size:clamp(25px,5vw,33px);margin-bottom:8px;
-    display:flex;align-items:center;gap:12px;
-  }
-  .h-icon{
-    flex:0 0 auto;width:44px;height:44px;border-radius:12px;
-    display:inline-flex;align-items:center;justify-content:center;
-    font-size:22px;line-height:1;
-    background:var(--mist);border:1px solid var(--line);
-  }
-  .sec-note{color:#5A6152;max-width:62ch;margin-bottom:22px;font-size:15px}
-  .sec-note code,.hint code{
-    font-family:'Space Grotesk',monospace;font-size:12.5px;
-    background:var(--mist);padding:2px 6px;border-radius:6px;
-  }
+  main{padding:28px 0 8px}
+  section{margin-bottom:30px}
+  .sec-head{margin-bottom:14px}
+  h2{font-size:19px;font-weight:600;letter-spacing:-.015em}
+  .sec-head p{color:var(--muted);font-size:13.5px;margin-top:3px}
 
   .card{
-    background:#fff;border:1px solid var(--line);border-radius:16px;
-    padding:20px;margin-bottom:14px;
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--r);padding:20px;
   }
+  .card + .card{margin-top:12px}
 
   /* ---------- FORM ---------- */
-  .field{margin-bottom:14px}
-  .field > label,.leg{
-    display:block;
-    font-family:'Space Grotesk',monospace;font-size:11.5px;font-weight:700;
-    letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
-    margin-bottom:7px;
+  .field{margin-bottom:16px}
+  .field:last-of-type{margin-bottom:0}
+  .lbl,.field > label,.leg,.filters .f label{
+    display:block;font-size:11.5px;font-weight:600;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:7px;
   }
-  .row{display:flex;flex-wrap:wrap;gap:10px}
+  .row{display:flex;flex-wrap:wrap;gap:8px}
   .row > *{flex:1 1 150px;min-width:0}
   .inp{
-    width:100%;font-family:'Instrument Sans',sans-serif;font-size:15px;
-    border:1px solid var(--line);border-radius:10px;padding:11px 12px;
-    background:#fff;color:var(--ink);
+    width:100%;font:inherit;font-size:14.5px;
+    border:1px solid var(--line-strong);border-radius:8px;padding:9px 11px;
+    background:var(--surface);color:var(--ink);
   }
-  .inp:focus{outline:2px solid rgba(30,91,65,.35);outline-offset:1px}
-  select.inp{appearance:none;-webkit-appearance:none;cursor:pointer;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236B7263' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
-    background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+  .inp:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,124,102,.14)}
+  select.inp{
+    appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:30px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='none' stroke='%235B6B7C' stroke-width='1.6' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 11px center;
+  }
 
-  /* amount gets the weight it deserves */
   .amt-wrap{position:relative}
   .amt-wrap .cur{
-    position:absolute;left:14px;top:50%;transform:translateY(-50%);
-    font-family:'Space Grotesk',monospace;font-weight:700;font-size:20px;color:var(--muted);
-    pointer-events:none;
+    position:absolute;left:13px;top:50%;transform:translateY(-50%);
+    font-size:18px;font-weight:600;color:var(--muted);pointer-events:none;
   }
   #txAmount{
-    font-family:'Space Grotesk',monospace;font-weight:700;font-size:24px;
-    padding:12px 12px 12px 38px;
+    font-size:22px;font-weight:600;padding:11px 12px 11px 34px;
+    font-variant-numeric:tabular-nums;
   }
 
-  /* segmented pickers */
-  .segs{display:flex;flex-wrap:wrap;gap:8px}
+  /* segmented chips */
+  .segs{display:flex;flex-wrap:wrap;gap:6px}
   .seg{
-    flex:1 1 auto;border:1px solid var(--line);background:#fff;border-radius:10px;
-    padding:10px 14px;cursor:pointer;font-family:'Instrument Sans',sans-serif;
-    font-size:14.5px;font-weight:600;color:#4A5147;white-space:nowrap;
-    transition:background .12s ease,border-color .12s ease,color .12s ease;
+    border:1px solid var(--line-strong);background:var(--surface);border-radius:7px;
+    padding:8px 14px;cursor:pointer;font:inherit;font-size:13.5px;font-weight:500;
+    color:var(--ink);white-space:nowrap;
+    transition:background .12s,border-color .12s,color .12s;
   }
-  .seg:hover{background:var(--mist)}
-  .seg[aria-pressed="true"]{background:var(--leaf);border-color:var(--leaf);color:var(--paper)}
-  .seg:focus-visible{outline:2px solid rgba(30,91,65,.45);outline-offset:2px}
-  .segs.tags .seg{flex:0 0 auto}
+  .seg:hover{background:var(--bg)}
+  .seg[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+  .seg:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
   .btn{
-    border:none;border-radius:10px;padding:13px 20px;cursor:pointer;
-    font-family:'Instrument Sans',sans-serif;font-weight:700;font-size:15px;
-    background:var(--leaf);color:var(--paper);
+    border:1px solid transparent;border-radius:8px;padding:10px 18px;cursor:pointer;
+    font:inherit;font-size:14px;font-weight:600;
+    background:var(--accent);color:#fff;
   }
-  .btn:disabled{opacity:.45;cursor:not-allowed}
-  .btn.ghost{background:#fff;color:#5A6152;border:1px solid var(--line);font-weight:600}
-  .btn.wide{width:100%}
-  .btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
-  .btn-row .btn{flex:1 1 auto}
+  .btn:hover{background:#0B6B58}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn.ghost{background:var(--surface);color:var(--ink);border-color:var(--line-strong);font-weight:500}
+  .btn.ghost:hover{background:var(--bg)}
+  .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
 
-  .msg{margin-top:12px;font-size:13.5px;border-radius:10px;padding:10px 12px;display:none}
+  .msg{margin-top:14px;font-size:13.5px;border-radius:8px;padding:9px 12px;display:none}
   .msg.show{display:block}
-  .msg.ok{background:rgba(30,91,65,.10);color:#1E5B41}
-  .msg.err{background:rgba(232,85,109,.12);color:#B03350}
-  .msg.wait{background:var(--mist);color:#4A5147}
+  .msg.ok{background:var(--accent-weak);color:#0A5C4C}
+  .msg.err{background:#FCECEA;color:var(--danger)}
+  .msg.wait{background:var(--bg);color:var(--muted)}
 
-  /* ---------- SUMMARY / STAT TILES ---------- */
-  .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-bottom:14px}
-  .filters .f{flex:0 1 auto}
-  .filters .f label{
-    display:block;font-family:'Space Grotesk',monospace;font-size:11.5px;font-weight:700;
-    letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;
+  /* ---------- FILTERS ---------- */
+  .filters{
+    display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;
+    padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--line);
   }
+  .filters .f{flex:0 1 auto}
   .filters .inp{width:auto}
 
-  .hero-fig{padding-bottom:4px}
-  .hero-fig .lbl{
-    font-family:'Space Grotesk',monospace;font-size:11.5px;font-weight:700;
-    letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
-  }
+  /* ---------- FIGURES ---------- */
+  .hero-fig .lbl{margin-bottom:4px}
   .hero-fig .val{
-    font-family:'Space Grotesk',monospace;font-weight:700;
-    font-size:clamp(40px,10vw,54px);line-height:1.05;color:var(--ink);
-    margin-top:2px;
+    font-size:38px;font-weight:600;letter-spacing:-.025em;line-height:1.1;
   }
-  .hero-fig .delta{font-size:13.5px;color:var(--muted);margin-top:4px}
-  .hero-fig .delta b{font-weight:700}
-  .delta .up{color:#B03350}      /* spending more than last month */
-  .delta .down{color:var(--leaf)} /* spending less */
-  .hero-fig .today{font-size:13.5px;color:var(--muted);margin-top:2px}
+  .hero-fig .delta{font-size:13px;color:var(--muted);margin-top:5px}
+  .hero-fig .delta b{font-weight:600}
+  .delta .up{color:var(--danger)}
+  .delta .down{color:var(--accent)}
+  .hero-fig .today{font-size:13px;color:var(--muted);margin-top:2px}
 
   .tiles{
-    display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;
-    margin-top:18px;padding-top:16px;border-top:1px solid var(--line);
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:16px;
+    margin-top:20px;padding-top:18px;border-top:1px solid var(--line);
   }
-  .tile .lbl{
-    font-family:'Space Grotesk',monospace;font-size:11px;font-weight:700;
-    letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
-  }
-  .tile .val{
-    font-family:'Space Grotesk',monospace;font-weight:700;font-size:22px;
-    line-height:1.2;color:var(--ink);margin-top:2px;
-  }
-  .tile .sub{font-size:12.5px;color:var(--muted)}
+  .tile .lbl{margin-bottom:3px}
+  .tile .val{font-size:19px;font-weight:600;letter-spacing:-.015em;font-variant-numeric:tabular-nums}
+  .tile .sub{font-size:12.5px;color:var(--muted);margin-top:1px}
 
   /* ---------- BREAKDOWN BARS ---------- */
-  .bd{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+  .bd{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
   .bd h3{
-    font-family:'Space Grotesk',monospace;font-size:11.5px;font-weight:700;
-    letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;
+    font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:14px;
   }
-  .bar-row{display:grid;grid-template-columns:1fr auto;gap:4px 12px;margin-bottom:12px}
-  .bar-row .nm{font-size:14.5px;font-weight:600}
+  .bar-row{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin-bottom:14px}
+  .bar-row:last-child{margin-bottom:0}
+  .bar-row .nm{font-size:13.5px;font-weight:500}
   .bar-row .amt{
-    font-family:'Space Grotesk',monospace;font-weight:700;font-size:14.5px;
-    font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;
+    font-size:13.5px;font-weight:600;font-variant-numeric:tabular-nums;
+    text-align:right;white-space:nowrap;
   }
-  .bar-row .rail{
-    grid-column:1 / -1;height:12px;border-radius:2px;background:var(--track);overflow:hidden;
-  }
+  .bar-row .rail{grid-column:1/-1;height:8px;border-radius:2px;background:var(--accent-weak);overflow:hidden}
   .bar-row .fill{
-    display:block;height:100%;background:var(--leaf);
-    border-radius:0 4px 4px 0;   /* square at the baseline, rounded data-end */
-    min-width:3px;
+    display:block;height:100%;background:var(--accent);
+    border-radius:0 3px 3px 0;   /* square at the baseline, rounded data-end */
+    min-width:2px;
   }
   .bar-row .meta{
-    grid-column:1 / -1;font-size:12.5px;color:var(--muted);
+    grid-column:1/-1;font-size:12px;color:var(--muted);
     display:flex;justify-content:space-between;gap:10px;
   }
 
-  /* ---------- TRANSACTION LIST ---------- */
+  /* ---------- TRANSACTIONS ---------- */
   .tx-list{list-style:none;margin-top:6px}
   .tx{
-    display:grid;grid-template-columns:1fr auto auto;gap:2px 12px;align-items:center;
-    padding:12px 0;border-bottom:1px dashed var(--line);
+    display:grid;grid-template-columns:1fr auto auto;gap:2px 14px;align-items:center;
+    padding:13px 0;border-bottom:1px solid var(--line);
   }
   .tx:last-child{border-bottom:none}
-  .tx .top{grid-column:1;font-size:15px;font-weight:600}
+  .tx .top{grid-column:1;font-size:14.5px;font-weight:500;display:flex;flex-wrap:wrap;align-items:center;gap:7px}
   .tx .when{grid-column:1;font-size:12.5px;color:var(--muted)}
   .tx .money{
-    grid-column:2;grid-row:1 / span 2;
-    font-family:'Space Grotesk',monospace;font-weight:700;font-size:16px;
-    font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right;
+    grid-column:2;grid-row:1/span 2;
+    font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;
+    white-space:nowrap;text-align:right;
   }
   .tx .del{
-    grid-column:3;grid-row:1 / span 2;
-    background:none;border:1px solid var(--line);border-radius:8px;
-    width:30px;height:30px;cursor:pointer;color:var(--muted);font-size:15px;line-height:1;
+    grid-column:3;grid-row:1/span 2;
+    background:none;border:1px solid var(--line-strong);border-radius:6px;
+    width:28px;height:28px;cursor:pointer;color:var(--muted);font-size:15px;line-height:1;
   }
-  .tx .del:hover{border-color:var(--melon);color:var(--melon)}
+  .tx .del:hover{border-color:var(--danger);color:var(--danger)}
   .tx .del:disabled{opacity:.4;cursor:not-allowed}
   .pill{
-    display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.03em;
-    background:var(--mist);color:var(--leaf);padding:2px 9px;border-radius:999px;
-    margin-left:6px;vertical-align:1px;
+    display:inline-block;font-size:11.5px;font-weight:500;
+    background:var(--bg);color:var(--muted);border:1px solid var(--line);
+    padding:1px 8px;border-radius:5px;
   }
-  .pill.type{background:#F1EFE4;color:#5A6152}
+  .pill.type{background:transparent}
   .empty{
-    text-align:center;padding:26px 10px;color:var(--muted);font-size:14.5px;
-    border:1px dashed var(--line);border-radius:12px;
+    text-align:center;padding:28px 12px;color:var(--muted);font-size:14px;
+    border:1px dashed var(--line-strong);border-radius:8px;
   }
 
   /* ---------- SIGN-IN GATE ---------- */
@@ -262,91 +227,93 @@
   html.locked body>*:not(#gate){display:none!important}
   #gate{display:none}
   html.locked #gate{
-    display:flex;position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:200;
-    flex-direction:column;align-items:center;justify-content:center;text-align:center;
-    padding:28px 20px;
-    background:linear-gradient(160deg,var(--night) 0%,var(--leaf) 90%);
-    color:var(--paper);
+    display:flex;position:fixed;inset:0;z-index:200;
+    align-items:center;justify-content:center;padding:24px;
+    background:var(--navy);
   }
-  #gate .lock{font-size:40px;line-height:1}
-  #gate h1{
-    font-family:'Bricolage Grotesque',Georgia,serif;font-weight:800;
-    font-size:clamp(24px,6vw,34px);margin:14px 0 6px;line-height:1.1;
+  #gate .box{
+    background:var(--surface);border-radius:14px;padding:36px 32px;
+    width:100%;max-width:380px;text-align:center;
+    box-shadow:0 18px 48px rgba(6,18,32,.34);
   }
-  #gate p{font-size:15px;color:#C9D4C4;max-width:34ch;margin-bottom:22px}
-  #gate .btn-wrap{min-height:44px;display:flex;justify-content:center}
-  #gate .note{
-    margin-top:20px;font-family:'Space Grotesk',monospace;font-size:11px;
-    letter-spacing:.14em;text-transform:uppercase;color:rgba(251,248,240,.45);
+  #gate .mark{
+    width:44px;height:44px;border-radius:11px;margin:0 auto 18px;
+    background:var(--accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:21px;
   }
+  #gate h1{font-size:20px;font-weight:600;letter-spacing:-.015em}
+  #gate p{font-size:13.5px;color:var(--muted);margin:7px 0 22px}
+  #gate .btn-wrap{display:flex;justify-content:center;min-height:44px}
+  #gate .note{margin-top:20px;font-size:11.5px;color:#94A3B2;letter-spacing:.02em}
   #gate .err{
-    margin-top:16px;font-size:13.5px;color:#FFD9DF;max-width:36ch;display:none;
-    background:rgba(232,85,109,.22);border-radius:10px;padding:10px 14px;
+    margin-top:16px;font-size:13px;color:var(--danger);
+    background:#FCECEA;border-radius:8px;padding:9px 12px;display:none;text-align:left;
   }
   #gate .err.show{display:block}
 
   /* ---------- SETTINGS ---------- */
-  .settings summary{
-    cursor:pointer;font-family:'Space Grotesk',monospace;font-size:12px;
-    letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;
+  details summary{
+    cursor:pointer;font-size:13.5px;font-weight:500;color:var(--ink);list-style:none;
   }
-  .hint{font-size:13px;color:var(--muted);margin-top:12px;line-height:1.6}
+  details summary::-webkit-details-marker{display:none}
+  details summary::before{content:"▸ ";color:var(--muted)}
+  details[open] summary::before{content:"▾ "}
 
   footer{
-    margin-top:44px;padding:30px 0 40px;text-align:center;
-    border-top:1px solid var(--line);
-  }
-  footer .mantra{
-    font-family:'Bricolage Grotesque',Georgia,serif;font-weight:800;
-    font-size:clamp(18px,4vw,24px);color:var(--leaf);max-width:28ch;margin:0 auto;
-  }
-  footer small{display:block;margin-top:12px;color:#8A9184;font-size:12px}
-  .signout{
-    background:none;border:none;padding:0;margin-top:12px;cursor:pointer;
-    font-family:'Instrument Sans',sans-serif;font-size:12px;
-    color:#8A9184;text-decoration:underline;
+    border-top:1px solid var(--line);margin-top:36px;padding:22px 0 40px;
+    color:#93A1AE;font-size:12.5px;text-align:center;
   }
 
-  @media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto}}
+  @media (max-width:520px){
+    .hero-fig .val{font-size:32px}
+    .appbar .wrap{height:52px}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 
 <div id="gate" role="dialog" aria-modal="true" aria-label="Sign in required">
-  <div class="lock">&#128274;</div>
-  <h1>Money,<br>in order.</h1>
-  <p>This is my private ledger. Sign in with the Google account I've allowed to open it.</p>
-  <div class="btn-wrap" id="gateBtn"></div>
-  <div class="err" id="gateErr" role="alert"></div>
-  <div class="note" id="gateNote">Akshath's ledger</div>
-  <noscript>
-    <div class="err show">This page needs JavaScript to sign you in.</div>
-  </noscript>
+  <div class="box">
+    <div class="mark">&#8377;</div>
+    <h1>Finance Tracker</h1>
+    <p>Sign in with an authorised Google account to continue.</p>
+    <div class="btn-wrap" id="gateBtn"></div>
+    <div class="err" id="gateErr" role="alert"></div>
+    <div class="note" id="gateNote">Authorised accounts only</div>
+    <noscript><div class="err show">This page needs JavaScript to sign you in.</div></noscript>
+  </div>
 </div>
 
-<nav>
+<header class="appbar">
   <div class="wrap">
-    <a href="#add">Add Spend</a>
-    <a href="#history">My History</a>
+    <div class="brand">
+      <span class="mark" aria-hidden="true">&#8377;</span>
+      <span class="name">Finance Tracker</span>
+    </div>
+    <div class="who">
+      <span id="whoAmI"></span>
+      <button class="signout" id="signOut" type="button">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="wrap">
+    <a href="#add">Add transaction</a>
+    <a href="#history">History</a>
     <a href="#settings">Settings</a>
   </div>
 </nav>
 
-<header class="hero">
-  <div class="wrap">
-    <div class="eyebrow">Akshath's ledger &middot; Every rupee, logged &middot; Stored in git</div>
-    <h1>Money,<br>in order.</h1>
-    <p class="sub">Every spend goes in the moment it happens — amount, how I paid, what it was for. Each one becomes a commit, so the history is permanent and it's mine.</p>
-  </div>
-</header>
+<main class="wrap">
 
-<div class="wrap">
-
-<!-- ============ ADD TRANSACTION ============ -->
+<!-- ============ ADD ============ -->
 <section id="add">
-  <div class="sec-label">Log it before you forget it</div>
-  <h2><span class="h-icon">&#128176;</span>Add a Transaction</h2>
-  <p class="sec-note">Date and time are already set to right now — change them only if you're logging something after the fact.</p>
+  <div class="sec-head">
+    <h2>Add transaction</h2>
+    <p>Date and time default to now — change them only when recording something after the fact.</p>
+  </div>
 
   <div class="card">
     <form id="txForm" novalidate>
@@ -361,7 +328,7 @@
       </div>
 
       <div class="field">
-        <label for="txDate">When</label>
+        <label for="txDate">Date &amp; time</label>
         <div class="row">
           <input class="inp" type="date" id="txDate" aria-label="Date" required>
           <input class="inp" type="time" id="txTime" aria-label="Time" required>
@@ -369,31 +336,31 @@
         </div>
       </div>
 
-      <!-- Hidden until a second person shows up in the data. -->
+      <!-- Hidden until a second person appears in the data. -->
       <div class="field" id="personField" hidden>
-        <span class="leg" id="lblPerson">Whose spend</span>
+        <span class="leg" id="lblPerson">Account holder</span>
         <div class="segs" id="personSegs" role="group" aria-labelledby="lblPerson"></div>
       </div>
 
       <div class="field">
-        <span class="leg" id="lblType">Transaction type</span>
+        <span class="leg" id="lblType">Payment method</span>
         <div class="segs" id="typeSegs" role="group" aria-labelledby="lblType"></div>
       </div>
 
       <div class="field">
-        <span class="leg" id="lblTag">Tag</span>
-        <div class="segs tags" id="tagSegs" role="group" aria-labelledby="lblTag"></div>
+        <span class="leg" id="lblTag">Category</span>
+        <div class="segs" id="tagSegs" role="group" aria-labelledby="lblTag"></div>
       </div>
 
       <div class="field">
-        <label for="txNote">Note <span style="text-transform:none;letter-spacing:0;font-weight:400">(optional)</span></label>
+        <label for="txNote">Description <span style="text-transform:none;letter-spacing:0;font-weight:400">(optional)</span></label>
         <input class="inp" type="text" id="txNote" maxlength="140"
-               placeholder="What was it for?" autocomplete="off">
+               placeholder="What was this for?" autocomplete="off">
       </div>
 
       <div class="btn-row">
         <button class="btn" type="submit" id="txSave">Save transaction</button>
-        <button class="btn ghost" type="button" id="txReset" style="flex:0 0 auto">Clear</button>
+        <button class="btn ghost" type="button" id="txReset">Clear</button>
       </div>
 
       <div class="msg" id="txMsg" role="status" aria-live="polite"></div>
@@ -403,31 +370,32 @@
 
 <!-- ============ HISTORY ============ -->
 <section id="history">
-  <div class="sec-label">Where the money actually went</div>
-  <h2><span class="h-icon">&#128200;</span>My History</h2>
-  <p class="sec-note">One JSON file per month in the data repo, so a month is one small fetch and the whole ledger stays diffable.</p>
+  <div class="sec-head">
+    <h2>History</h2>
+    <p>Statement view for one account holder at a time.</p>
+  </div>
 
   <div class="card">
     <div class="filters">
       <div class="f">
-        <label for="hMonth">Month</label>
+        <label for="hMonth">Period</label>
         <input class="inp" type="month" id="hMonth">
       </div>
       <div class="f" id="hPersonField" hidden>
-        <label for="hPerson">Whose spend</label>
+        <label for="hPerson">Account holder</label>
         <select class="inp" id="hPerson"></select>
       </div>
       <div class="f">
-        <label for="hTag">Tag</label>
-        <select class="inp" id="hTag"><option value="">All tags</option></select>
+        <label for="hTag">Category</label>
+        <select class="inp" id="hTag"><option value="">All categories</option></select>
       </div>
       <div class="f">
-        <label for="hType">Paid by</label>
-        <select class="inp" id="hType"><option value="">All types</option></select>
+        <label for="hType">Method</label>
+        <select class="inp" id="hType"><option value="">All methods</option></select>
       </div>
       <div class="f">
         <label>&nbsp;</label>
-        <button class="btn ghost" type="button" id="hReload">Reload</button>
+        <button class="btn ghost" type="button" id="hReload">Refresh</button>
       </div>
     </div>
 
@@ -446,7 +414,7 @@
       </div>
 
       <div class="bd">
-        <h3 id="hBdTitle">Spend by tag</h3>
+        <h3 id="hBdTitle">By category</h3>
         <div id="hBars"></div>
       </div>
     </div>
@@ -458,47 +426,32 @@
 
 <!-- ============ SETTINGS ============ -->
 <section id="settings">
-  <div class="sec-label">Where this ledger is stored</div>
-  <h2><span class="h-icon">&#128273;</span>Settings</h2>
+  <div class="sec-head">
+    <h2>Settings</h2>
+  </div>
 
   <div class="card">
-    <details class="settings" id="cfgBox">
-      <summary id="cfgSummary">Connection settings</summary>
-      <div class="row" style="margin-top:12px">
-        <input class="inp" type="text" id="cfgOwner" placeholder="GitHub user" aria-label="GitHub user" autocapitalize="off" autocorrect="off" spellcheck="false">
-        <input class="inp" type="text" id="cfgRepo" placeholder="Data repo" aria-label="Data repo" autocapitalize="off" autocorrect="off" spellcheck="false">
-        <input class="inp" type="text" id="cfgFolder" placeholder="Folder" aria-label="Folder" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <details id="cfgBox">
+      <summary id="cfgSummary">Access token</summary>
+      <div class="field" style="margin-top:14px">
+        <input class="inp" type="password" id="cfgToken" placeholder="Paste token"
+               aria-label="Access token"
+               autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
       </div>
-      <div class="row" style="margin-top:10px">
-        <input class="inp" type="password" id="cfgToken" placeholder="Fine-grained token" aria-label="Access token" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-      </div>
-      <div class="btn-row" style="margin-top:10px">
-        <button class="btn" id="cfgSave" type="button">Save &amp; test</button>
-        <button class="btn ghost" id="cfgClear" type="button">Forget token</button>
+      <div class="btn-row" style="margin-top:0">
+        <button class="btn" id="cfgSave" type="button">Save &amp; verify</button>
+        <button class="btn ghost" id="cfgClear" type="button">Remove token</button>
       </div>
       <div class="msg" id="cfgMsg" role="status" aria-live="polite"></div>
-      <p class="hint">
-        Make a <b>fine-grained</b> token at <code>github.com/settings/personal-access-tokens</code>
-        with permission <b>Contents: Read and write</b> on <code>finance_tracking_data</code>.
-        It is stored in this phone's browser only, never in the website's code.
-        This page keeps its own token and its own sign-in — nothing is shared with the
-        fitness page, and nothing here reads or writes <code>fitness-data</code>.
-        Anyone with the token can write to that repo, so use &ldquo;Forget token&rdquo; on a shared device.
-      </p>
     </details>
   </div>
 </section>
 
-<footer>
-  <div class="mantra">"I can't fix what I don't measure. So I write it down."</div>
-  <small>Akshath's ledger &middot; Sibling of the fitness plan &middot; Consistency is the key</small>
-  <button class="signout" id="signOut" type="button">Sign out</button>
-</footer>
+</main>
 
-</div>
+<footer>Records are stored privately and versioned in Git.</footer>
 
 <script>
-/* ================= SHARED HELPERS ================= */
 var FT = (function(){
   function $(id){ return document.getElementById(id); }
   function pad(n){ return (n<10?"0":"") + n; }
@@ -509,54 +462,48 @@ var FT = (function(){
 </script>
 
 <script>
-/* ---------- TRANSACTIONS → GitHub Contents API ----------
-   One JSON file per month. Adding a transaction is read-modify-write:
-   GET the month file for its sha, splice the array, PUT it back. The token
-   lives in this device's localStorage, never in this file. */
+/* ---------- LEDGER → GitHub Contents API ----------
+   One JSON file per month. Adding a record is read-modify-write: GET the month
+   file for its sha, splice the array, PUT it back. The token lives in this
+   device's localStorage, never in this file. */
 (function(){
   var $ = FT.$, pad = FT.pad, say = FT.say, mute = FT.mute;
 
-  var CFG_KEY   = "finance-tracker-cfg";
-  var PEOPLE_KEY = "finance-people";         // roster learned from the data, cached per device
-  var DEFAULTS  = { owner:"AkshRk", repo:"finance_tracking_data", folder:"transactions" };
+  var CFG_KEY    = "finance-tracker-cfg";
+  var PEOPLE_KEY = "finance-people";     // roster learned from the data, cached per device
+  // Fixed storage location — not user-editable, so a stale saved value can't strand the app.
+  var STORE = { owner:"AkshRk", repo:"finance_tracking_data", folder:"transactions" };
 
   var TYPES = ["Cash", "Online", "Card"];
   var DEFAULT_TYPE = "Online";
   var TAGS = [
-    { id:"grocery",    label:"Grocery",    icon:"🛒" },
-    { id:"restaurant", label:"Restaurant", icon:"🍽️" },
-    { id:"misc",       label:"Misc",       icon:"✨" },
-    { id:"charity",    label:"Charity",    icon:"🤝" },
-    { id:"lending",    label:"Lending",    icon:"🔁" }
+    { id:"grocery",    label:"Grocery"    },
+    { id:"restaurant", label:"Restaurant" },
+    { id:"misc",       label:"Misc"       },
+    { id:"charity",    label:"Charity"    },
+    { id:"lending",    label:"Lending"    }
   ];
   var DEFAULT_TAG = "misc";
 
   var state = {
     type: DEFAULT_TYPE, tag: DEFAULT_TAG, months: {}, busy: false,
     me:     { email:"", name:"" },   // straight off the Google credential
-    person: "",                      // whose spend the form is logging
-    people: {}                       // email -> display name, learned from transactions
+    person: "",                      // whose spend the form is recording
+    people: {}                       // email -> display name, learned from records
   };
 
-  /* ---- config ---- */
+  /* ---- config: only the token is stored ---- */
   function readJson(key){
     try{ return JSON.parse(localStorage.getItem(key) || "{}") || {}; }catch(e){ return {}; }
   }
   function cfg(){
-    var c = readJson(CFG_KEY);
     return {
-      owner:  c.owner  || DEFAULTS.owner,
-      repo:   c.repo   || DEFAULTS.repo,
-      folder: c.folder || DEFAULTS.folder,
-      // Deliberately does NOT fall back to the fitness page's token: this app
-      // stands alone, and its token is scoped to finance_tracking_data.
-      token:  c.token  || ""
+      owner: STORE.owner, repo: STORE.repo, folder: STORE.folder,
+      token: readJson(CFG_KEY).token || ""
     };
   }
-  function saveCfg(patch){
-    var c = readJson(CFG_KEY);
-    for (var k in patch) c[k] = patch[k];
-    try{ localStorage.setItem(CFG_KEY, JSON.stringify(c)); }catch(e){}
+  function saveToken(t){
+    try{ localStorage.setItem(CFG_KEY, JSON.stringify({ token: t })); }catch(e){}
   }
 
   /* ---- formatting ---- */
@@ -568,7 +515,7 @@ var FT = (function(){
   var nf2 = nf(2,2), nf0 = nf(0,0), nf1 = nf(0,1);
 
   function money(n){ return rupee + nf2.format(Number(n) || 0); }
-  function moneyBig(n){                       // stat-tile / hero: compact past a lakh
+  function moneyBig(n){
     n = Number(n) || 0;
     if (n >= 10000000) return rupee + nf1.format(n/10000000) + " Cr";
     if (n >= 100000)   return rupee + nf1.format(n/100000) + " L";
@@ -598,18 +545,17 @@ var FT = (function(){
   function prettyWhen(t){
     var d = new Date(t.at || (t.date + "T" + (t.time || "00:00")));
     if (isNaN(d)) return t.date + " " + (t.time || "");
-    return d.toLocaleDateString(undefined, { weekday:"short", day:"numeric", month:"short" })
-         + " · " + d.toLocaleTimeString(undefined, { hour:"numeric", minute:"2-digit" });
+    return d.toLocaleDateString(undefined, { day:"numeric", month:"short", year:"numeric" })
+         + ", " + d.toLocaleTimeString(undefined, { hour:"numeric", minute:"2-digit" });
   }
   function tagOf(id){
     for (var i=0;i<TAGS.length;i++) if (TAGS[i].id === id) return TAGS[i];
-    return { id:id, label:id, icon:"" };
+    return { id:id, label:id };
   }
 
   /* ---- people ----
-     There is no hardcoded roster. Everyone in the picker got there by signing in
-     with Google and logging a transaction; we learn their name from the records
-     they left behind, and cache it so it survives a reload. */
+     No hardcoded roster: everyone in the picker got there by signing in with
+     Google and recording a transaction. Names come from the records they left. */
   function norm(e){ return String(e || "").trim().toLowerCase(); }
   function ownerOf(t){ return norm(t.person || t.by); }
   function nameFromEmail(e){
@@ -637,7 +583,6 @@ var FT = (function(){
     savePeople();
     return true;
   }
-  /* Pull every name we can out of a month's records. */
   function harvest(list){
     var changed = false;
     (list || []).forEach(function(t){
@@ -648,7 +593,7 @@ var FT = (function(){
   }
   function roster(){
     return Object.keys(state.people).sort(function(a,b){
-      if (a === state.me.email) return -1;          // you first
+      if (a === state.me.email) return -1;
       if (b === state.me.email) return 1;
       return personName(a).localeCompare(personName(b));
     });
@@ -657,7 +602,7 @@ var FT = (function(){
     return personName(e) + (e === state.me.email ? " (you)" : "");
   }
 
-  /* ---- base64 that survives non-ASCII notes ---- */
+  /* ---- base64 that survives non-ASCII text ---- */
   function b64enc(str){
     var bytes = new TextEncoder().encode(str), bin = "";
     for (var i=0;i<bytes.length;i+=0x8000){
@@ -704,7 +649,6 @@ var FT = (function(){
     return "/repos/" + c.owner + "/" + c.repo + "/contents/" + encPath(monthPath(mk));
   }
 
-  /* Fetch a month file. Missing file is a normal empty month, not an error. */
   function fetchMonth(mk){
     return api(monthUrl(mk)).then(function(res){
       var doc = { month: mk, transactions: [] };
@@ -712,9 +656,9 @@ var FT = (function(){
         try{
           var parsed = JSON.parse(b64dec(res.content));
           if (parsed && Array.isArray(parsed.transactions)) doc = parsed;
-          else if (Array.isArray(parsed)) doc.transactions = parsed;   // tolerate a bare array
+          else if (Array.isArray(parsed)) doc.transactions = parsed;
         }catch(e){
-          throw new Error("The stored file for " + mk + " isn't valid JSON — fix it on GitHub first.");
+          throw new Error("The stored file for " + mk + " isn't valid JSON.");
         }
       }
       var entry = { sha: res ? res.sha : null, doc: doc };
@@ -730,7 +674,7 @@ var FT = (function(){
     });
   }
 
-  /* Read-modify-write with a retry, so a commit from another device doesn't clobber. */
+  /* Read-modify-write with retry, so a record from another device isn't clobbered. */
   function commitMonth(mk, mutate, message, attempt){
     attempt = attempt || 0;
     return fetchMonth(mk).then(function(entry){
@@ -753,7 +697,6 @@ var FT = (function(){
         state.months[mk] = saved;
         return saved;
       }).catch(function(err){
-        // 409/422 = someone else committed between our GET and PUT. Re-read and redo.
         if ((err.status === 409 || err.status === 422) && attempt < 3){
           return commitMonth(mk, mutate, message, attempt + 1);
         }
@@ -762,7 +705,7 @@ var FT = (function(){
     });
   }
 
-  /* ================= ADD FORM ================= */
+  /* ================= ADD ================= */
   var amountEl = $("txAmount"), dateEl = $("txDate"), timeEl = $("txTime"),
       noteEl = $("txNote"), saveBtn = $("txSave"), txMsg = $("txMsg");
 
@@ -772,7 +715,7 @@ var FT = (function(){
       var b = document.createElement("button");
       b.type = "button";
       b.className = "seg";
-      b.textContent = it.icon ? it.icon + " " + it.label : it.label;
+      b.textContent = it.label;
       b.setAttribute("aria-pressed", String(get() === it.id));
       b.onclick = function(){
         set(it.id);
@@ -784,8 +727,7 @@ var FT = (function(){
     });
   }
 
-  /* Stays hidden until someone else turns up in the data — a one-option
-     picker is just noise while you're the only person logging. */
+  /* Hidden while you're the only person recording — a one-option picker is noise. */
   function buildPersonSegs(){
     var host = $("personSegs"), field = $("personField"), list = roster();
     if (list.length < 2){
@@ -806,7 +748,7 @@ var FT = (function(){
     noteEl.value = "";
     stampNow();
     state.type = DEFAULT_TYPE; state.tag = DEFAULT_TAG;
-    state.person = state.me.email;          // logging for yourself unless you say otherwise
+    state.person = state.me.email;
     buildSegs($("typeSegs"), TYPES.map(function(t){ return {id:t, label:t}; }),
       function(){ return state.type; }, function(v){ state.type = v; });
     buildSegs($("tagSegs"), TAGS, function(){ return state.tag; }, function(v){ state.tag = v; });
@@ -822,7 +764,7 @@ var FT = (function(){
 
     var c = cfg();
     if (!c.token){
-      say(txMsg, "Add your GitHub token in Settings first — that's where this saves to.", "err");
+      say(txMsg, "Add an access token in Settings first.", "err");
       $("cfgBox").open = true;
       $("settings").scrollIntoView({ behavior:"smooth" });
       return;
@@ -832,11 +774,11 @@ var FT = (function(){
     if (!isFinite(amount) || amount <= 0){
       say(txMsg, "Enter an amount greater than zero.", "err"); amountEl.focus(); return;
     }
-    if (!dateEl.value){ say(txMsg, "Pick a date.", "err"); dateEl.focus(); return; }
+    if (!dateEl.value){ say(txMsg, "Select a date.", "err"); dateEl.focus(); return; }
     var time = timeEl.value || "00:00";
 
     var mk = monthOf(dateEl.value);
-    var owner = norm(state.person) || state.me.email;   // whose spend it is
+    var owner = norm(state.person) || state.me.email;
     var tx = {
       id: dateEl.value + "T" + time.replace(":", "") + "-" +
           Math.random().toString(36).slice(2, 8),
@@ -847,9 +789,9 @@ var FT = (function(){
       type: state.type,
       tag: state.tag,
       note: (noteEl.value || "").trim(),
-      person: owner,                        // counts toward this person's totals
+      person: owner,
       personName: personName(owner),
-      by: state.me.email || null,           // who was signed in when it was logged
+      by: state.me.email || null,
       byName: state.me.name || null,
       created: new Date().toISOString()
     };
@@ -857,11 +799,11 @@ var FT = (function(){
     var onBehalf = owner !== state.me.email;
     var msg = money(amount) + " · " + personName(owner) + " · " + tagOf(tx.tag).label +
               " · " + tx.type + (tx.note ? " — " + tx.note : "") + " (" + tx.date + ")" +
-              (onBehalf ? " [logged by " + (state.me.name || state.me.email) + "]" : "");
+              (onBehalf ? " [recorded by " + (state.me.name || state.me.email) + "]" : "");
 
     state.busy = true;
     saveBtn.disabled = true; saveBtn.textContent = "Saving…";
-    say(txMsg, "Committing to " + c.owner + "/" + c.repo + "…", "wait");
+    say(txMsg, "Saving…", "wait");
 
     commitMonth(mk, function(doc){ doc.transactions.push(tx); }, msg)
       .then(function(){
@@ -869,23 +811,22 @@ var FT = (function(){
         resetForm();
         amountEl.focus();
         if ($("hMonth").value !== mk) $("hMonth").value = mk;
-        // Follow the money: show the ledger it just landed in.
-        hPerson.value = owner;
+        hPerson.value = owner;              // show the ledger it landed in
         renderMonth(mk, true);
       })
-      .catch(function(err){
-        say(txMsg, explain(err, c), "err");
-      })
+      .catch(function(err){ say(txMsg, explain(err), "err"); })
       .then(function(){
         state.busy = false;
         saveBtn.disabled = false; saveBtn.textContent = "Save transaction";
       });
   };
 
-  function explain(err, c){
-    if (err.status === 401) return "Token rejected (401) — expired or mistyped.";
-    if (err.status === 403) return "Forbidden (403) — the token needs Contents: Read and write.";
-    if (err.status === 404) return "Can't see " + c.owner + "/" + c.repo + ". Create the repo, or add it to the token's repository access.";
+  function explain(err){
+    if (err.status === 401) return "Token rejected — expired or mistyped.";
+    if (err.status === 403) return "Token lacks write permission.";
+    // Names the repository on purpose: this is the failure that needs it.
+    if (err.status === 404) return "Can't reach " + STORE.owner + "/" + STORE.repo +
+      " — add it to the token's repository access.";
     return "Couldn't save: " + (err.message || "unknown error");
   }
 
@@ -903,7 +844,7 @@ var FT = (function(){
       hPerson.appendChild(o);
     });
     hPerson.value = list.indexOf(cur) >= 0 ? cur : state.me.email;
-    $("hPersonField").hidden = list.length < 2;   // nothing to switch between yet
+    $("hPersonField").hidden = list.length < 2;
   }
 
   TAGS.forEach(function(t){
@@ -935,7 +876,6 @@ var FT = (function(){
     var who = whoIsShown();
     var narrowed = !!(hTag.value || hType.value);
 
-    // Whose money this is always leads; "Filtered" only means tag/type.
     $("hHeroLbl").textContent =
       (narrowed ? "Filtered · " : "") + personName(who) + " · " + monthLabel(mk);
     $("hHeroVal").textContent = moneyBig(total);
@@ -955,28 +895,24 @@ var FT = (function(){
       return (Number(b.amount)||0) > (Number(a.amount)||0) ? b : a;
     }, list[0] || null);
     $("hMax").textContent = biggest ? moneyBig(biggest.amount) : rupee + "0";
-    $("hMaxSub").textContent = biggest
-      ? tagOf(biggest.tag).label + " · " + biggest.date
-      : "—";
+    $("hMaxSub").textContent = biggest ? tagOf(biggest.tag).label + " · " + biggest.date : "—";
 
-    // Today's running total, only meaningful while the month is live.
     var todayEl = $("hToday");
     if (isCurrent){
       var t = todayStr();
-      var todaySum = sum(list.filter(function(x){ return x.date === t; }));
-      todayEl.textContent = "Today so far: " + money(todaySum);
+      todayEl.textContent = "Today: " + money(sum(list.filter(function(x){ return x.date === t; })));
     } else {
       todayEl.textContent = "";
     }
 
-    // Delta vs the previous month — for spending, up is bad.
+    // Month over month — for spending, up is bad.
     var deltaEl = $("hDelta");
     var pm = prevMonth(mk), prior = state.months[pm];
     var theirs = all.filter(function(t){ return ownerOf(t) === who; });
     if (narrowed){
-      deltaEl.textContent = "Showing " + list.length + " of " + theirs.length + " transactions this month.";
+      deltaEl.textContent = "Showing " + list.length + " of " + theirs.length + " transactions.";
     } else if (prior){
-      // Compare like with like: the same person's previous month, not everyone's.
+      // Compare like with like: the same person's previous month.
       var prevTotal = sum((prior.doc.transactions || []).filter(function(t){
         return ownerOf(t) === who;
       }));
@@ -986,8 +922,7 @@ var FT = (function(){
         deltaEl.innerHTML = "<b class='" + dir + "'>" + (diff >= 0 ? "▲ " : "▼ ") + pct +
           "%</b> vs " + monthLabel(pm) + " (" + moneyBig(prevTotal) + ")";
       } else {
-        deltaEl.textContent = "Nothing logged for " + personName(who) + " in " +
-                              monthLabel(pm) + " to compare against.";
+        deltaEl.textContent = "No records for " + personName(who) + " in " + monthLabel(pm) + ".";
       }
     } else {
       deltaEl.textContent = "";
@@ -1018,14 +953,13 @@ var FT = (function(){
     var max = rows[0].total || 1;
 
     rows.forEach(function(r){
-      var name = r.name;
       var share = Math.round(r.total / (grand || 1) * 100);
 
       var row = document.createElement("div");
       row.className = "bar-row";
 
       var nm = document.createElement("div");
-      nm.className = "nm"; nm.textContent = name;
+      nm.className = "nm"; nm.textContent = r.name;
 
       var amt = document.createElement("div");
       amt.className = "amt"; amt.textContent = money(r.total);
@@ -1042,7 +976,7 @@ var FT = (function(){
       var left = document.createElement("span");
       left.textContent = r.count + " transaction" + (r.count === 1 ? "" : "s");
       var right = document.createElement("span");
-      right.textContent = share + "% of the month";
+      right.textContent = share + "%";
       meta.appendChild(left); meta.appendChild(right);
 
       row.appendChild(nm); row.appendChild(amt);
@@ -1053,13 +987,11 @@ var FT = (function(){
 
   function renderBreakdowns(list){
     var grand = sum(list) || 1;
-
-    // Pinning a tag would leave a one-bar tag chart, so switch the axis to payment type.
+    // Pinning a category would leave a one-bar chart, so switch the axis.
     var byTag = !hTag.value;
-    $("hBdTitle").textContent = byTag ? "Spend by tag" : "Spend by payment type";
+    $("hBdTitle").textContent = byTag ? "By category" : "By payment method";
     var rows = byTag
-      ? groupBy(list, function(t){ return t.tag || "misc"; },
-                function(k){ return tagOf(k).icon + " " + tagOf(k).label; })
+      ? groupBy(list, function(t){ return t.tag || "misc"; }, function(k){ return tagOf(k).label; })
       : groupBy(list, function(t){ return t.type || "—"; }, function(k){ return k; });
     drawBars($("hBars"), rows, grand);
   }
@@ -1071,8 +1003,8 @@ var FT = (function(){
     if (!list.length){
       var li = document.createElement("li");
       li.innerHTML = "<p class='empty'>" +
-        (all.length ? "No transactions match those filters."
-                    : "Nothing logged for " + monthLabel(mk) + " yet.") + "</p>";
+        (all.length ? "No transactions match these filters."
+                    : "No transactions recorded for " + monthLabel(mk) + ".") + "</p>";
       hList.appendChild(li);
       return;
     }
@@ -1084,11 +1016,9 @@ var FT = (function(){
       var top = document.createElement("div");
       top.className = "top";
       top.appendChild(document.createTextNode(t.note || tagOf(t.tag).label));
-
-      // No person pill: the whole view is already one person's spend.
       var pTag = document.createElement("span");
       pTag.className = "pill";
-      pTag.textContent = tagOf(t.tag).icon + " " + tagOf(t.tag).label;
+      pTag.textContent = tagOf(t.tag).label;
       var pType = document.createElement("span");
       pType.className = "pill type";
       pType.textContent = t.type;
@@ -1096,31 +1026,30 @@ var FT = (function(){
 
       var when = document.createElement("div");
       when.className = "when";
-      // Only call out the logger when it wasn't the person who spent it.
-      var loggedByOther = t.by && ownerOf(t) && norm(t.by) !== ownerOf(t);
+      var byOther = t.by && ownerOf(t) && norm(t.by) !== ownerOf(t);
       when.textContent = prettyWhen(t) +
-        (loggedByOther ? " · added by " + personName(t.by) : "");
+        (byOther ? "  ·  recorded by " + personName(t.by) : "");
 
-      var money$ = document.createElement("div");
-      money$.className = "money";
-      money$.textContent = money(t.amount);
+      var amt = document.createElement("div");
+      amt.className = "money";
+      amt.textContent = money(t.amount);
 
       var del = document.createElement("button");
       del.className = "del"; del.type = "button";
       del.textContent = "×";
-      del.title = "Delete this transaction";
+      del.title = "Delete";
       del.setAttribute("aria-label", "Delete " + money(t.amount) + " " + tagOf(t.tag).label);
       del.onclick = function(){ removeTx(mk, t, del); };
 
       li.appendChild(top); li.appendChild(when);
-      li.appendChild(money$); li.appendChild(del);
+      li.appendChild(amt); li.appendChild(del);
       hList.appendChild(li);
     });
   }
 
   function removeTx(mk, tx, btn){
     if (!window.confirm("Delete " + money(tx.amount) + " · " + tagOf(tx.tag).label +
-        (tx.note ? " (" + tx.note + ")" : "") + "?\n\nThis commits the removal to git.")) return;
+        (tx.note ? " (" + tx.note + ")" : "") + "?")) return;
 
     btn.disabled = true;
     say(hMsg, "Removing…", "wait");
@@ -1131,42 +1060,38 @@ var FT = (function(){
     commitMonth(mk, function(doc){
       var before = doc.transactions.length;
       doc.transactions = doc.transactions.filter(function(x){ return x.id !== tx.id; });
-      if (doc.transactions.length === before) return false;   // already gone elsewhere
+      if (doc.transactions.length === before) return false;
     }, msg).then(function(){
       say(hMsg, "Removed.", "ok");
       paint(mk);
     }).catch(function(err){
       btn.disabled = false;
-      say(hMsg, explain(err, cfg()), "err");
+      say(hMsg, explain(err), "err");
     });
   }
 
   function paint(mk){
     var entry = state.months[mk];
     if (!entry) return;
-    // Sort on read too — never trust the stored order, in case a file was
-    // hand-edited on GitHub or written by something other than this page.
+    // Sort on read too — never trust the stored order.
     var all = (entry.doc.transactions || []).slice().sort(function(a,b){
       return String(b.at || b.date || "").localeCompare(String(a.at || a.date || ""));
     });
-    // Anyone who has logged a transaction joins the roster.
     if (harvest(all)){ buildPersonSegs(); fillPersonFilter(); }
     renderSummary(mk, all);
     renderList(mk, all);
   }
 
   function renderMonth(mk, quiet){
-    var c = cfg();
-    if (!c.token){
+    if (!cfg().token){
       hSummary.hidden = true;
       hList.innerHTML = "";
-      say(hMsg, "Add your GitHub token in Settings to load your history.", "err");
+      say(hMsg, "Add an access token in Settings to load your history.", "err");
       return Promise.resolve();
     }
-    if (!quiet) say(hMsg, "Loading " + monthLabel(mk) + "…", "wait");
+    if (!quiet) say(hMsg, "Loading…", "wait");
 
     return fetchMonth(mk).then(function(){
-      // Previous month, for the delta. A miss here just hides the comparison.
       return fetchMonth(prevMonth(mk)).catch(function(){ return null; });
     }).then(function(){
       mute(hMsg);
@@ -1176,7 +1101,7 @@ var FT = (function(){
     }).catch(function(err){
       hSummary.hidden = true;
       hList.innerHTML = "";
-      say(hMsg, explain(err, c), "err");
+      say(hMsg, explain(err), "err");
     });
   }
 
@@ -1188,47 +1113,32 @@ var FT = (function(){
 
   /* ================= SETTINGS ================= */
   var cfgMsg = $("cfgMsg");
-  function summary(text){ $("cfgSummary").textContent = "Connection settings" + (text ? " — " + text : ""); }
+  function summary(text){ $("cfgSummary").textContent = "Access token" + (text ? " — " + text : ""); }
   function fillCfg(){
-    var c = cfg();
-    $("cfgOwner").value = c.owner;
-    $("cfgRepo").value = c.repo;
-    $("cfgFolder").value = c.folder;
     $("cfgToken").value = "";
-    $("cfgToken").placeholder = c.token
-      ? "Token available on this device — paste a new one to replace"
-      : "Fine-grained token (github_pat_…)";
+    $("cfgToken").placeholder = cfg().token ? "A token is saved on this device" : "Paste token";
   }
-  function test(){
-    var c = cfg();
-    if (!c.token){ say(cfgMsg, "Paste a token to connect.", "err"); return; }
-    say(cfgMsg, "Checking…", "wait");
-    api("/user").then(function(u){
-      return api("/repos/" + c.owner + "/" + c.repo).then(function(r){
-        say(cfgMsg, "Connected as " + u.login + " → " + r.full_name + " (" + r.visibility +
-                    "). Ledger path: " + c.folder + "/YYYY-MM.json", "ok");
-        summary("connected as " + u.login);
-        if (hMonth.value) renderMonth(hMonth.value, true);
-      });
+  function verify(){
+    if (!cfg().token){ say(cfgMsg, "Paste a token first.", "err"); return; }
+    say(cfgMsg, "Verifying…", "wait");
+    api("/repos/" + STORE.owner + "/" + STORE.repo).then(function(){
+      say(cfgMsg, "Connected.", "ok");
+      summary("connected");
+      if (hMonth.value) renderMonth(hMonth.value, true);
     }).catch(function(err){
-      say(cfgMsg, explain(err, c), "err");
+      say(cfgMsg, explain(err), "err");
       summary("not connected");
     });
   }
   $("cfgSave").onclick = function(){
-    saveCfg({
-      owner:  ($("cfgOwner").value  || "").trim() || DEFAULTS.owner,
-      repo:   ($("cfgRepo").value   || "").trim() || DEFAULTS.repo,
-      folder: (($("cfgFolder").value || "").trim() || DEFAULTS.folder).replace(/^\/+|\/+$/g, "")
-    });
     var t = ($("cfgToken").value || "").trim();
-    if (t) saveCfg({ token: t });
+    if (t) saveToken(t);
     state.months = {};
     fillCfg();
-    test();
+    verify();
   };
   $("cfgClear").onclick = function(){
-    saveCfg({ token:"" });
+    saveToken("");
     fillCfg();
     summary("no token on this device");
     say(cfgMsg, "Token removed from this device.", "ok");
@@ -1236,48 +1146,44 @@ var FT = (function(){
 
   /* ================= INIT ================= */
   window.__financeReady = function(email, name){
-    state.me = {
-      email: norm(email),
-      name: (name || "").trim() || nameFromEmail(email)
-    };
+    state.me = { email: norm(email), name: (name || "").trim() || nameFromEmail(email) };
     state.people = loadPeople();
-    notePerson(state.me.email, state.me.name);   // you're always in your own roster
+    notePerson(state.me.email, state.me.name);
     state.person = state.me.email;
     fillPersonFilter();
     resetForm();
     fillCfg();
     var mk = monthOf(todayStr());
     hMonth.value = mk;
-    if (cfg().token){ summary("token ready"); renderMonth(mk); }
-    else { $("cfgBox").open = true; summary("add a token to start");
-           say(hMsg, "Add your GitHub token in Settings to load your history.", "err"); }
+    if (cfg().token){ summary(""); renderMonth(mk); }
+    else {
+      $("cfgBox").open = true;
+      summary("required");
+      say(hMsg, "Add an access token in Settings to load your history.", "err");
+    }
   };
 })();
 </script>
 
 <script>
 /* ---------- SIGN-IN GATE (Google Identity Services) ----------
-   A curtain, not a lock: GitHub Pages serves this file to anyone, so the
-   markup is already on the visitor's machine before this runs. It keeps a
-   casual onlooker out; it does not keep a determined one out. The transaction
-   data itself lives in the private data repo, behind the token. */
+   A curtain, not a lock: GitHub Pages serves this file to anyone, so the markup
+   is already on the visitor's machine before this runs. It keeps a casual
+   onlooker out. The records themselves live in the private data repository. */
 (function(){
 
-  /* Same OAuth Client ID as the fitness page — both are served from the same
-     origin (akshrk.github.io), which is what Google authorises, so no change
-     is needed in the Google Cloud Console. */
+  /* Authorised per origin, not per path, so every page on this domain shares it. */
   var CLIENT_ID = "954346523827-usak41j5lkfaeb0shk79obep0tdcrp1h.apps.googleusercontent.com";
 
-  /* SHA-256 of each allowed email, lowercased and trimmed. Same list as the
-     fitness page. A rejected sign-in prints its own hash to the browser
-     console, which is the easiest way to collect a new one. */
+  /* SHA-256 of each allowed email, lowercased and trimmed. A rejected sign-in
+     prints its own hash to the browser console — the easiest way to add one. */
   var ALLOW = [
     "55638b341f57592050083c0e0e1d1d961e550753d9e43247e6ec365f00504cf6",
     "84f18fe877fbf52a7108ef519215b8e0927408fa5d1aac061923f3275b712364"
   ];
 
   var REMEMBER_DAYS = 30;
-  var SKEY = "finance-gate";       // this app's own session; deliberately not shared
+  var SKEY = "finance-gate";     // this app's own session; deliberately not shared
 
   var gate = document.getElementById("gate"),
       errEl = document.getElementById("gateErr"),
@@ -1289,8 +1195,8 @@ var FT = (function(){
   function unlock(email, name){
     document.documentElement.classList.remove("locked");
     if (gate) gate.style.display = "none";
-    var out = document.getElementById("signOut");
-    if (out) out.textContent = "Sign out" + (email ? " (" + email + ")" : "");
+    var who = document.getElementById("whoAmI");
+    if (who) who.textContent = name || email || "";
     if (window.__financeReady) window.__financeReady(email, name);
   }
 
@@ -1313,27 +1219,23 @@ var FT = (function(){
     });
   }
 
-  /* Remembered session — re-checked against ALLOW on every load, so removing
-     someone from the list locks them out even if they signed in before. */
+  /* Remembered session — re-checked against ALLOW on every load. */
   function remember(email, name){
     try{
       localStorage.setItem(SKEY, JSON.stringify({
-        email: email,
-        name: name || "",
+        email: email, name: name || "",
         exp: Date.now() + REMEMBER_DAYS * 86400000
       }));
     }catch(e){}
   }
   function forget(){ try{ localStorage.removeItem(SKEY); }catch(e){} }
-  function readKey(key){
+  function saved(){
     try{
-      var s = JSON.parse(localStorage.getItem(key) || "null");
-      // Sessions saved before names were recorded have none — we derive one.
+      var s = JSON.parse(localStorage.getItem(SKEY) || "null");
       if (s && s.email && s.exp > Date.now()) return { email: s.email, name: s.name || "" };
     }catch(e){}
     return null;
   }
-  function saved(){ return readKey(SKEY); }
 
   function decodeJwt(token){
     var part = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
@@ -1357,7 +1259,7 @@ var FT = (function(){
       fail("That Google account has no verified email address."); return;
     }
 
-    // Google hands us the display name, so the roster never needs configuring.
+    // Google supplies the display name, so the roster never needs configuring.
     var who = (claims.given_name || claims.name || "").trim();
     allowed(claims.email).then(function(ok){
       if (ok){ remember(claims.email, who); unlock(claims.email, who); }
@@ -1365,15 +1267,10 @@ var FT = (function(){
     });
   }
 
-  /* Called by the Google script's onload/onerror below. */
   window.__gateBoot = function(loadFailed){
-    if (document.documentElement.className.indexOf("locked") < 0) return;  // already in
+    if (document.documentElement.className.indexOf("locked") < 0) return;
     if (loadFailed){
       fail("Couldn't load Google Sign-In. Check your connection or any content blocker.");
-      return;
-    }
-    if (!CLIENT_ID){
-      fail("Sign-in isn't configured yet — CLIENT_ID is empty in index.html.");
       return;
     }
     if (!window.google || !google.accounts || !google.accounts.id){
@@ -1387,10 +1284,9 @@ var FT = (function(){
       cancel_on_tap_outside: false
     });
     google.accounts.id.renderButton(document.getElementById("gateBtn"), {
-      theme: "filled_black", size: "large", shape: "pill", text: "signin_with", width: 260
+      theme: "outline", size: "large", shape: "rectangular", text: "signin_with", width: 300
     });
     google.accounts.id.prompt();
-    noteEl.textContent = "Akshath's ledger · allowed accounts only";
   };
 
   var out = document.getElementById("signOut");
@@ -1400,7 +1296,6 @@ var FT = (function(){
     location.reload();
   };
 
-  // Skip the button entirely if this device signed in recently and is still allowed.
   var prior = saved();
   if (prior) allowed(prior.email).then(function(ok){
     if (ok) unlock(prior.email, prior.name); else forget();
