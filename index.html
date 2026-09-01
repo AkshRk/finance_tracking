@@ -252,7 +252,6 @@
     margin-left:6px;vertical-align:1px;
   }
   .pill.type{background:#F1EFE4;color:#5A6152}
-  .pill.person{background:var(--leaf);color:var(--paper)}
   .empty{
     text-align:center;padding:26px 10px;color:var(--muted);font-size:14.5px;
     border:1px dashed var(--line);border-radius:12px;
@@ -414,9 +413,9 @@
         <label for="hMonth">Month</label>
         <input class="inp" type="month" id="hMonth">
       </div>
-      <div class="f">
-        <label for="hPerson">Person</label>
-        <select class="inp" id="hPerson"><option value="">Everyone</option></select>
+      <div class="f" id="hPersonField" hidden>
+        <label for="hPerson">Whose spend</label>
+        <select class="inp" id="hPerson"></select>
       </div>
       <div class="f">
         <label for="hTag">Tag</label>
@@ -444,11 +443,6 @@
         <div class="tile"><div class="lbl">Transactions</div><div class="val" id="hCount">0</div></div>
         <div class="tile"><div class="lbl">Daily average</div><div class="val" id="hAvg">&#8377;0</div><div class="sub" id="hAvgSub"></div></div>
         <div class="tile"><div class="lbl">Largest</div><div class="val" id="hMax">&#8377;0</div><div class="sub" id="hMaxSub"></div></div>
-      </div>
-
-      <div class="bd" id="hPersonBd" hidden>
-        <h3>Spend by person</h3>
-        <div id="hPersonBars"></div>
       </div>
 
       <div class="bd">
@@ -487,9 +481,8 @@
         Make a <b>fine-grained</b> token at <code>github.com/settings/personal-access-tokens</code>
         with permission <b>Contents: Read and write</b> on <code>finance_tracking_data</code>.
         It is stored in this phone's browser only, never in the website's code.
-        A token saved on the fitness page is picked up automatically — same browser, same
-        origin — but that one is scoped to <code>fitness-data</code>, so either add this repo
-        to its repository access or paste a new token here.
+        This page keeps its own token and its own sign-in — nothing is shared with the
+        fitness page, and nothing here reads or writes <code>fitness-data</code>.
         Anyone with the token can write to that repo, so use &ldquo;Forget token&rdquo; on a shared device.
       </p>
     </details>
@@ -525,7 +518,6 @@ var FT = (function(){
 
   var CFG_KEY   = "finance-tracker-cfg";
   var PEOPLE_KEY = "finance-people";         // roster learned from the data, cached per device
-  var FIT_KEY   = "fitness-upload-cfg";      // same origin as the fitness page — reuse its token
   var DEFAULTS  = { owner:"AkshRk", repo:"finance_tracking_data", folder:"transactions" };
 
   var TYPES = ["Cash", "Online", "Card"];
@@ -556,8 +548,9 @@ var FT = (function(){
       owner:  c.owner  || DEFAULTS.owner,
       repo:   c.repo   || DEFAULTS.repo,
       folder: c.folder || DEFAULTS.folder,
-      // Inherit the fitness page's token when this page has none of its own.
-      token:  c.token  || readJson(FIT_KEY).token || ""
+      // Deliberately does NOT fall back to the fitness page's token: this app
+      // stands alone, and its token is scoped to finance_tracking_data.
+      token:  c.token  || ""
     };
   }
   function saveCfg(patch){
@@ -876,6 +869,8 @@ var FT = (function(){
         resetForm();
         amountEl.focus();
         if ($("hMonth").value !== mk) $("hMonth").value = mk;
+        // Follow the money: show the ledger it just landed in.
+        hPerson.value = owner;
         renderMonth(mk, true);
       })
       .catch(function(err){
@@ -898,18 +893,17 @@ var FT = (function(){
   var hMonth = $("hMonth"), hTag = $("hTag"), hType = $("hType"), hPerson = $("hPerson"),
       hMsg = $("hMsg"), hList = $("hList"), hSummary = $("hSummary");
 
+  /* One person at a time, by design — there is no combined view. */
   function fillPersonFilter(){
     var cur = hPerson.value, list = roster();
     hPerson.innerHTML = "";
-    var all = document.createElement("option");
-    all.value = ""; all.textContent = "Everyone";
-    hPerson.appendChild(all);
     list.forEach(function(e){
       var o = document.createElement("option");
       o.value = e; o.textContent = personLabel(e);
       hPerson.appendChild(o);
     });
-    hPerson.value = list.indexOf(cur) >= 0 ? cur : "";
+    hPerson.value = list.indexOf(cur) >= 0 ? cur : state.me.email;
+    $("hPersonField").hidden = list.length < 2;   // nothing to switch between yet
   }
 
   TAGS.forEach(function(t){
@@ -923,11 +917,12 @@ var FT = (function(){
     hType.appendChild(o);
   });
 
+  function whoIsShown(){ return hPerson.value || state.me.email; }
+
   function visible(list){
-    var tag = hTag.value, type = hType.value, who = hPerson.value;
+    var tag = hTag.value, type = hType.value, who = whoIsShown();
     return list.filter(function(t){
-      return (!tag || t.tag === tag) && (!type || t.type === type) &&
-             (!who || ownerOf(t) === who);
+      return (!tag || t.tag === tag) && (!type || t.type === type) && ownerOf(t) === who;
     });
   }
   function sum(list){
@@ -937,13 +932,12 @@ var FT = (function(){
   function renderSummary(mk, all){
     var list = visible(all);
     var total = sum(list);
-    var who = hPerson.value;
+    var who = whoIsShown();
     var narrowed = !!(hTag.value || hType.value);
-    var filtered = narrowed || !!who;
 
-    // A person filter alone isn't "filtered" — it's just whose money this is.
+    // Whose money this is always leads; "Filtered" only means tag/type.
     $("hHeroLbl").textContent =
-      (narrowed ? "Filtered total" : (who ? personName(who) : "Total")) + " · " + monthLabel(mk);
+      (narrowed ? "Filtered · " : "") + personName(who) + " · " + monthLabel(mk);
     $("hHeroVal").textContent = moneyBig(total);
 
     // Days elapsed: a month in progress averages over days so far, not 30.
@@ -978,17 +972,22 @@ var FT = (function(){
     // Delta vs the previous month — for spending, up is bad.
     var deltaEl = $("hDelta");
     var pm = prevMonth(mk), prior = state.months[pm];
-    if (filtered){
-      deltaEl.textContent = "Showing " + list.length + " of " + all.length + " transactions this month.";
+    var theirs = all.filter(function(t){ return ownerOf(t) === who; });
+    if (narrowed){
+      deltaEl.textContent = "Showing " + list.length + " of " + theirs.length + " transactions this month.";
     } else if (prior){
-      var prevTotal = sum(prior.doc.transactions || []);
+      // Compare like with like: the same person's previous month, not everyone's.
+      var prevTotal = sum((prior.doc.transactions || []).filter(function(t){
+        return ownerOf(t) === who;
+      }));
       if (prevTotal > 0){
         var diff = total - prevTotal, pct = Math.round(Math.abs(diff) / prevTotal * 100);
         var dir = diff >= 0 ? "up" : "down";
         deltaEl.innerHTML = "<b class='" + dir + "'>" + (diff >= 0 ? "▲ " : "▼ ") + pct +
           "%</b> vs " + monthLabel(pm) + " (" + moneyBig(prevTotal) + ")";
       } else {
-        deltaEl.textContent = "Nothing logged in " + monthLabel(pm) + " to compare against.";
+        deltaEl.textContent = "Nothing logged for " + personName(who) + " in " +
+                              monthLabel(pm) + " to compare against.";
       }
     } else {
       deltaEl.textContent = "";
@@ -1055,13 +1054,6 @@ var FT = (function(){
   function renderBreakdowns(list){
     var grand = sum(list) || 1;
 
-    // Who spent what. Only worth a chart when looking at everyone and more than
-    // one person actually has transactions in view.
-    var people = groupBy(list, ownerOf, personName);
-    var showPeople = !hPerson.value && people.length > 1;
-    $("hPersonBd").hidden = !showPeople;
-    if (showPeople) drawBars($("hPersonBars"), people, grand);
-
     // Pinning a tag would leave a one-bar tag chart, so switch the axis to payment type.
     var byTag = !hTag.value;
     $("hBdTitle").textContent = byTag ? "Spend by tag" : "Spend by payment type";
@@ -1093,13 +1085,7 @@ var FT = (function(){
       top.className = "top";
       top.appendChild(document.createTextNode(t.note || tagOf(t.tag).label));
 
-      // Redundant once you've filtered to a single person.
-      if (!hPerson.value && roster().length > 1){
-        var pWho = document.createElement("span");
-        pWho.className = "pill person";
-        pWho.textContent = personName(ownerOf(t));
-        top.appendChild(pWho);
-      }
+      // No person pill: the whole view is already one person's spend.
       var pTag = document.createElement("span");
       pTag.className = "pill";
       pTag.textContent = tagOf(t.tag).icon + " " + tagOf(t.tag).label;
@@ -1245,7 +1231,7 @@ var FT = (function(){
     saveCfg({ token:"" });
     fillCfg();
     summary("no token on this device");
-    say(cfgMsg, "Token removed from this page. (The fitness page keeps its own copy — clear it there too.)", "ok");
+    say(cfgMsg, "Token removed from this device.", "ok");
   };
 
   /* ================= INIT ================= */
@@ -1291,8 +1277,7 @@ var FT = (function(){
   ];
 
   var REMEMBER_DAYS = 30;
-  var SKEY = "finance-gate";
-  var FIT_SKEY = "fitness-gate";   // same origin — a live fitness session counts here too
+  var SKEY = "finance-gate";       // this app's own session; deliberately not shared
 
   var gate = document.getElementById("gate"),
       errEl = document.getElementById("gateErr"),
@@ -1343,12 +1328,12 @@ var FT = (function(){
   function readKey(key){
     try{
       var s = JSON.parse(localStorage.getItem(key) || "null");
-      // The fitness page's session has no name field — that's fine, we derive one.
+      // Sessions saved before names were recorded have none — we derive one.
       if (s && s.email && s.exp > Date.now()) return { email: s.email, name: s.name || "" };
     }catch(e){}
     return null;
   }
-  function saved(){ return readKey(SKEY) || readKey(FIT_SKEY); }
+  function saved(){ return readKey(SKEY); }
 
   function decodeJwt(token){
     var part = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");

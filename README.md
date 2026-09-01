@@ -11,9 +11,11 @@ to a private data repo as JSON.
 2. **Nothing to change in Google Cloud Console.** The OAuth client is authorised per
    *origin*, and this page shares `https://akshrk.github.io` with the fitness page, so
    the same client ID and email allowlist already cover it.
-3. **Open it and add a GitHub token** under *Settings → Connection settings* — unless
-   you already added one on the fitness page, in which case this page picks it up
-   automatically (same browser, same origin, same `localStorage`).
+3. **Open it and add a GitHub token** under *Settings → Connection settings*.
+
+This app is self-contained: it keeps its own token and its own sign-in session, and it
+never reads or writes `fitness-data`. Nothing is shared with the fitness page beyond the
+OAuth client ID and the email allowlist.
 
 ## Where the data goes
 
@@ -24,11 +26,9 @@ to a private data repo as JSON.
 | Token | Fine-grained PAT, **Contents: Read and write** |
 
 **The token must be scoped to this repo.** Fine-grained PATs grant access to named
-repositories, so the token used by the fitness page (scoped to `fitness-data`) will
-return a 404 here until you either add `finance_tracking_data` to its repository access
-or issue a separate token. The page inherits the fitness token automatically — same
-browser, same origin — which means a wrong-scope token can look like it's configured
-when it isn't. If you see *"Can't see AkshRk/finance_tracking_data"*, that's this.
+repositories, so a token issued for `fitness-data` will return a 404 here. Either add
+`finance_tracking_data` to that token's repository access, or issue a separate one. If
+you see *"Can't see AkshRk/finance_tracking_data"*, that's this.
 
 Repo, folder and token are all editable under Connection settings; the values above are
 just the defaults compiled into the page.
@@ -78,12 +78,17 @@ same time won't clobber.
 
 Every record carries two identities, and they are deliberately different things:
 
-- **`person`** — whose spend it is. This is what totals, the person filter and the
-  *Spend by person* chart are keyed on.
+- **`person`** — whose spend it is. Everything in History is keyed on this.
 - **`by`** — who was signed in when it was logged.
 
-So Akshath can log a spend *for* Pavithra: the ₹1,100 lands in her column, and the row
+So Akshath can log a spend *for* Pavithra: the ₹1,100 lands in *her* ledger, and the row
 reads *"added by Akshath"*. When the two match — the normal case — the byline is omitted.
+
+**History always shows exactly one person, never a combined total.** It opens on the
+signed-in user's own spend; the *Whose spend* dropdown switches to someone else's. Tag
+and payment-type filters, the month-over-month delta and the daily average all operate
+inside the selected person, so the comparison is always like with like. The dropdown
+stays hidden while you are the only person in the data.
 
 **The roster is not configured anywhere.** Names and emails come straight off the Google
 credential at sign-in, and the *Whose spend* picker is built from whoever appears in the
