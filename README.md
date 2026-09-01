@@ -36,7 +36,8 @@ just the defaults compiled into the page.
 Each transaction is one commit, so `git log` reads as a spending history:
 
 ```
-₹340.50 · Restaurant · Online — Lunch with Ravi (2026-09-01)
+₹340.50 · Akshath · Restaurant · Online — Lunch with Ravi (2026-09-01)
+₹1,100.00 · Pavithra · Charity · Online — Temple donation (2026-09-04) [logged by Akshath]
 ```
 
 ### File shape
@@ -58,7 +59,10 @@ Each transaction is one commit, so `git log` reads as a spending history:
       "type": "Card",
       "tag": "grocery",
       "note": "Monthly stock-up",
-      "by": "you@example.com",
+      "person": "pavithra@example.com",
+      "personName": "Pavithra",
+      "by": "akshath@example.com",
+      "byName": "Akshath",
       "created": "2026-09-01T03:50:12.004Z"
     }
   ]
@@ -69,6 +73,35 @@ Transactions are sorted newest-first on write *and* on read, so hand-editing a f
 GitHub won't scramble the display. Writes are read-modify-write against the file's SHA
 and retry up to three times on a conflict, so logging from your phone and laptop at the
 same time won't clobber.
+
+## Two people, one ledger
+
+Every record carries two identities, and they are deliberately different things:
+
+- **`person`** — whose spend it is. This is what totals, the person filter and the
+  *Spend by person* chart are keyed on.
+- **`by`** — who was signed in when it was logged.
+
+So Akshath can log a spend *for* Pavithra: the ₹1,100 lands in her column, and the row
+reads *"added by Akshath"*. When the two match — the normal case — the byline is omitted.
+
+**The roster is not configured anywhere.** Names and emails come straight off the Google
+credential at sign-in, and the *Whose spend* picker is built from whoever appears in the
+transaction data. A new person therefore shows up only *after* they have signed in and
+logged something themselves; until then the picker stays hidden, because a one-option
+picker is just noise. The learned roster is cached in `localStorage` so it survives a
+reload, and adding a third person needs no code change.
+
+### Adding a person
+
+Two separate gates, and both must be open:
+
+1. **The sign-in gate** — the SHA-256 of their email must be in the `ALLOW` list in
+   `index.html`. A rejected sign-in prints its own hash to the browser console; paste
+   that in.
+2. **Repo access** — they need their own fine-grained PAT with **Contents: Read and
+   write** on `finance_tracking_data`, which means their GitHub account must be a
+   collaborator on it. Passing the Google gate alone will leave them staring at a 404.
 
 ## Customising
 

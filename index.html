@@ -252,6 +252,7 @@
     margin-left:6px;vertical-align:1px;
   }
   .pill.type{background:#F1EFE4;color:#5A6152}
+  .pill.person{background:var(--leaf);color:var(--paper)}
   .empty{
     text-align:center;padding:26px 10px;color:var(--muted);font-size:14.5px;
     border:1px dashed var(--line);border-radius:12px;
@@ -369,6 +370,12 @@
         </div>
       </div>
 
+      <!-- Hidden until a second person shows up in the data. -->
+      <div class="field" id="personField" hidden>
+        <span class="leg" id="lblPerson">Whose spend</span>
+        <div class="segs" id="personSegs" role="group" aria-labelledby="lblPerson"></div>
+      </div>
+
       <div class="field">
         <span class="leg" id="lblType">Transaction type</span>
         <div class="segs" id="typeSegs" role="group" aria-labelledby="lblType"></div>
@@ -408,6 +415,10 @@
         <input class="inp" type="month" id="hMonth">
       </div>
       <div class="f">
+        <label for="hPerson">Person</label>
+        <select class="inp" id="hPerson"><option value="">Everyone</option></select>
+      </div>
+      <div class="f">
         <label for="hTag">Tag</label>
         <select class="inp" id="hTag"><option value="">All tags</option></select>
       </div>
@@ -433,6 +444,11 @@
         <div class="tile"><div class="lbl">Transactions</div><div class="val" id="hCount">0</div></div>
         <div class="tile"><div class="lbl">Daily average</div><div class="val" id="hAvg">&#8377;0</div><div class="sub" id="hAvgSub"></div></div>
         <div class="tile"><div class="lbl">Largest</div><div class="val" id="hMax">&#8377;0</div><div class="sub" id="hMaxSub"></div></div>
+      </div>
+
+      <div class="bd" id="hPersonBd" hidden>
+        <h3>Spend by person</h3>
+        <div id="hPersonBars"></div>
       </div>
 
       <div class="bd">
@@ -508,6 +524,7 @@ var FT = (function(){
   var $ = FT.$, pad = FT.pad, say = FT.say, mute = FT.mute;
 
   var CFG_KEY   = "finance-tracker-cfg";
+  var PEOPLE_KEY = "finance-people";         // roster learned from the data, cached per device
   var FIT_KEY   = "fitness-upload-cfg";      // same origin as the fitness page — reuse its token
   var DEFAULTS  = { owner:"AkshRk", repo:"finance_tracking_data", folder:"transactions" };
 
@@ -522,7 +539,12 @@ var FT = (function(){
   ];
   var DEFAULT_TAG = "misc";
 
-  var state = { type: DEFAULT_TYPE, tag: DEFAULT_TAG, email: null, months: {}, busy: false };
+  var state = {
+    type: DEFAULT_TYPE, tag: DEFAULT_TAG, months: {}, busy: false,
+    me:     { email:"", name:"" },   // straight off the Google credential
+    person: "",                      // whose spend the form is logging
+    people: {}                       // email -> display name, learned from transactions
+  };
 
   /* ---- config ---- */
   function readJson(key){
@@ -589,6 +611,57 @@ var FT = (function(){
   function tagOf(id){
     for (var i=0;i<TAGS.length;i++) if (TAGS[i].id === id) return TAGS[i];
     return { id:id, label:id, icon:"" };
+  }
+
+  /* ---- people ----
+     There is no hardcoded roster. Everyone in the picker got there by signing in
+     with Google and logging a transaction; we learn their name from the records
+     they left behind, and cache it so it survives a reload. */
+  function norm(e){ return String(e || "").trim().toLowerCase(); }
+  function ownerOf(t){ return norm(t.person || t.by); }
+  function nameFromEmail(e){
+    var s = norm(e).split("@")[0].replace(/[._\-+]+/g, " ").trim();
+    return s ? s.replace(/\b\w/g, function(c){ return c.toUpperCase(); }) : norm(e);
+  }
+  function personName(email){
+    var e = norm(email);
+    if (!e) return "—";
+    return state.people[e] || nameFromEmail(e);
+  }
+  function loadPeople(){
+    try{ return JSON.parse(localStorage.getItem(PEOPLE_KEY) || "{}") || {}; }
+    catch(e){ return {}; }
+  }
+  function savePeople(){
+    try{ localStorage.setItem(PEOPLE_KEY, JSON.stringify(state.people)); }catch(e){}
+  }
+  function notePerson(email, name){
+    var e = norm(email);
+    if (!e) return false;
+    var nm = (name && String(name).trim()) || state.people[e] || nameFromEmail(e);
+    if (state.people[e] === nm) return false;
+    state.people[e] = nm;
+    savePeople();
+    return true;
+  }
+  /* Pull every name we can out of a month's records. */
+  function harvest(list){
+    var changed = false;
+    (list || []).forEach(function(t){
+      if (notePerson(t.person, t.personName)) changed = true;
+      if (notePerson(t.by, t.byName)) changed = true;
+    });
+    return changed;
+  }
+  function roster(){
+    return Object.keys(state.people).sort(function(a,b){
+      if (a === state.me.email) return -1;          // you first
+      if (b === state.me.email) return 1;
+      return personName(a).localeCompare(personName(b));
+    });
+  }
+  function personLabel(e){
+    return personName(e) + (e === state.me.email ? " (you)" : "");
   }
 
   /* ---- base64 that survives non-ASCII notes ---- */
@@ -718,6 +791,21 @@ var FT = (function(){
     });
   }
 
+  /* Stays hidden until someone else turns up in the data — a one-option
+     picker is just noise while you're the only person logging. */
+  function buildPersonSegs(){
+    var host = $("personSegs"), field = $("personField"), list = roster();
+    if (list.length < 2){
+      field.hidden = true;
+      state.person = state.me.email;
+      return;
+    }
+    field.hidden = false;
+    if (list.indexOf(norm(state.person)) < 0) state.person = state.me.email;
+    buildSegs(host, list.map(function(e){ return { id:e, label: personLabel(e) }; }),
+      function(){ return state.person; }, function(v){ state.person = v; });
+  }
+
   function stampNow(){ dateEl.value = todayStr(); timeEl.value = nowTimeStr(); }
 
   function resetForm(){
@@ -725,9 +813,11 @@ var FT = (function(){
     noteEl.value = "";
     stampNow();
     state.type = DEFAULT_TYPE; state.tag = DEFAULT_TAG;
+    state.person = state.me.email;          // logging for yourself unless you say otherwise
     buildSegs($("typeSegs"), TYPES.map(function(t){ return {id:t, label:t}; }),
       function(){ return state.type; }, function(v){ state.type = v; });
     buildSegs($("tagSegs"), TAGS, function(){ return state.tag; }, function(v){ state.tag = v; });
+    buildPersonSegs();
   }
 
   $("txNow").onclick = function(){ stampNow(); };
@@ -753,6 +843,7 @@ var FT = (function(){
     var time = timeEl.value || "00:00";
 
     var mk = monthOf(dateEl.value);
+    var owner = norm(state.person) || state.me.email;   // whose spend it is
     var tx = {
       id: dateEl.value + "T" + time.replace(":", "") + "-" +
           Math.random().toString(36).slice(2, 8),
@@ -763,12 +854,17 @@ var FT = (function(){
       type: state.type,
       tag: state.tag,
       note: (noteEl.value || "").trim(),
-      by: state.email || null,
+      person: owner,                        // counts toward this person's totals
+      personName: personName(owner),
+      by: state.me.email || null,           // who was signed in when it was logged
+      byName: state.me.name || null,
       created: new Date().toISOString()
     };
 
-    var msg = money(amount) + " · " + tagOf(tx.tag).label + " · " + tx.type +
-              (tx.note ? " — " + tx.note : "") + " (" + tx.date + ")";
+    var onBehalf = owner !== state.me.email;
+    var msg = money(amount) + " · " + personName(owner) + " · " + tagOf(tx.tag).label +
+              " · " + tx.type + (tx.note ? " — " + tx.note : "") + " (" + tx.date + ")" +
+              (onBehalf ? " [logged by " + (state.me.name || state.me.email) + "]" : "");
 
     state.busy = true;
     saveBtn.disabled = true; saveBtn.textContent = "Saving…";
@@ -799,8 +895,22 @@ var FT = (function(){
   }
 
   /* ================= HISTORY ================= */
-  var hMonth = $("hMonth"), hTag = $("hTag"), hType = $("hType"),
+  var hMonth = $("hMonth"), hTag = $("hTag"), hType = $("hType"), hPerson = $("hPerson"),
       hMsg = $("hMsg"), hList = $("hList"), hSummary = $("hSummary");
+
+  function fillPersonFilter(){
+    var cur = hPerson.value, list = roster();
+    hPerson.innerHTML = "";
+    var all = document.createElement("option");
+    all.value = ""; all.textContent = "Everyone";
+    hPerson.appendChild(all);
+    list.forEach(function(e){
+      var o = document.createElement("option");
+      o.value = e; o.textContent = personLabel(e);
+      hPerson.appendChild(o);
+    });
+    hPerson.value = list.indexOf(cur) >= 0 ? cur : "";
+  }
 
   TAGS.forEach(function(t){
     var o = document.createElement("option");
@@ -814,9 +924,10 @@ var FT = (function(){
   });
 
   function visible(list){
-    var tag = hTag.value, type = hType.value;
+    var tag = hTag.value, type = hType.value, who = hPerson.value;
     return list.filter(function(t){
-      return (!tag || t.tag === tag) && (!type || t.type === type);
+      return (!tag || t.tag === tag) && (!type || t.type === type) &&
+             (!who || ownerOf(t) === who);
     });
   }
   function sum(list){
@@ -826,9 +937,13 @@ var FT = (function(){
   function renderSummary(mk, all){
     var list = visible(all);
     var total = sum(list);
-    var filtered = !!(hTag.value || hType.value);
+    var who = hPerson.value;
+    var narrowed = !!(hTag.value || hType.value);
+    var filtered = narrowed || !!who;
 
-    $("hHeroLbl").textContent = (filtered ? "Filtered total" : "Total") + " · " + monthLabel(mk);
+    // A person filter alone isn't "filtered" — it's just whose money this is.
+    $("hHeroLbl").textContent =
+      (narrowed ? "Filtered total" : (who ? personName(who) : "Total")) + " · " + monthLabel(mk);
     $("hHeroVal").textContent = moneyBig(total);
 
     // Days elapsed: a month in progress averages over days so far, not 30.
@@ -879,40 +994,33 @@ var FT = (function(){
       deltaEl.textContent = "";
     }
 
-    renderBars(list);
+    renderBreakdowns(list);
     hSummary.hidden = false;
   }
 
-  /* Nominal categories, one measure — every bar wears the same hue.
-     Colouring each tag would re-encode what bar length already shows. */
-  function renderBars(list){
-    var host = $("hBars");
-    host.innerHTML = "";
-
-    // Pinning a tag would leave a one-bar tag chart, so switch the axis to payment type.
-    var byTag = !hTag.value;
-    var key = byTag ? "tag" : "type";
-    $("hBdTitle").textContent = byTag ? "Spend by tag" : "Spend by payment type";
-
-    var groups = {};
+  function groupBy(list, keyFn, nameFn){
+    var g = {}, order = [];
     list.forEach(function(t){
-      var k = t[key] || "misc";
-      if (!groups[k]) groups[k] = { total:0, count:0 };
-      groups[k].total += Number(t.amount) || 0;
-      groups[k].count++;
+      var k = keyFn(t) || "—";
+      if (!g[k]){ g[k] = { key:k, name:nameFn(k), total:0, count:0 }; order.push(k); }
+      g[k].total += Number(t.amount) || 0;
+      g[k].count++;
     });
+    return order.map(function(k){ return g[k]; })
+                .sort(function(a,b){ return b.total - a.total; });
+  }
 
-    var rows = Object.keys(groups).map(function(k){
-      return { key:k, total:groups[k].total, count:groups[k].count };
-    }).sort(function(a,b){ return b.total - a.total; });
-
+  /* Nominal categories, one measure — every bar wears the same hue.
+     Colouring each row would re-encode what bar length already shows. */
+  function drawBars(host, rows, grand){
+    host.innerHTML = "";
     if (!rows.length){ host.innerHTML = "<p class='empty'>Nothing to break down yet.</p>"; return; }
 
-    var max = rows[0].total || 1, grand = sum(list) || 1;
+    var max = rows[0].total || 1;
 
     rows.forEach(function(r){
-      var name = byTag ? (tagOf(r.key).icon + " " + tagOf(r.key).label) : r.key;
-      var share = Math.round(r.total / grand * 100);
+      var name = r.name;
+      var share = Math.round(r.total / (grand || 1) * 100);
 
       var row = document.createElement("div");
       row.className = "bar-row";
@@ -944,6 +1052,26 @@ var FT = (function(){
     });
   }
 
+  function renderBreakdowns(list){
+    var grand = sum(list) || 1;
+
+    // Who spent what. Only worth a chart when looking at everyone and more than
+    // one person actually has transactions in view.
+    var people = groupBy(list, ownerOf, personName);
+    var showPeople = !hPerson.value && people.length > 1;
+    $("hPersonBd").hidden = !showPeople;
+    if (showPeople) drawBars($("hPersonBars"), people, grand);
+
+    // Pinning a tag would leave a one-bar tag chart, so switch the axis to payment type.
+    var byTag = !hTag.value;
+    $("hBdTitle").textContent = byTag ? "Spend by tag" : "Spend by payment type";
+    var rows = byTag
+      ? groupBy(list, function(t){ return t.tag || "misc"; },
+                function(k){ return tagOf(k).icon + " " + tagOf(k).label; })
+      : groupBy(list, function(t){ return t.type || "—"; }, function(k){ return k; });
+    drawBars($("hBars"), rows, grand);
+  }
+
   function renderList(mk, all){
     var list = visible(all);
     hList.innerHTML = "";
@@ -964,6 +1092,14 @@ var FT = (function(){
       var top = document.createElement("div");
       top.className = "top";
       top.appendChild(document.createTextNode(t.note || tagOf(t.tag).label));
+
+      // Redundant once you've filtered to a single person.
+      if (!hPerson.value && roster().length > 1){
+        var pWho = document.createElement("span");
+        pWho.className = "pill person";
+        pWho.textContent = personName(ownerOf(t));
+        top.appendChild(pWho);
+      }
       var pTag = document.createElement("span");
       pTag.className = "pill";
       pTag.textContent = tagOf(t.tag).icon + " " + tagOf(t.tag).label;
@@ -974,7 +1110,10 @@ var FT = (function(){
 
       var when = document.createElement("div");
       when.className = "when";
-      when.textContent = prettyWhen(t);
+      // Only call out the logger when it wasn't the person who spent it.
+      var loggedByOther = t.by && ownerOf(t) && norm(t.by) !== ownerOf(t);
+      when.textContent = prettyWhen(t) +
+        (loggedByOther ? " · added by " + personName(t.by) : "");
 
       var money$ = document.createElement("div");
       money$.className = "money";
@@ -1024,6 +1163,8 @@ var FT = (function(){
     var all = (entry.doc.transactions || []).slice().sort(function(a,b){
       return String(b.at || b.date || "").localeCompare(String(a.at || a.date || ""));
     });
+    // Anyone who has logged a transaction joins the roster.
+    if (harvest(all)){ buildPersonSegs(); fillPersonFilter(); }
     renderSummary(mk, all);
     renderList(mk, all);
   }
@@ -1043,6 +1184,8 @@ var FT = (function(){
       return fetchMonth(prevMonth(mk)).catch(function(){ return null; });
     }).then(function(){
       mute(hMsg);
+      var pm = state.months[prevMonth(mk)];
+      if (pm && harvest(pm.doc.transactions)){ buildPersonSegs(); fillPersonFilter(); }
       paint(mk);
     }).catch(function(err){
       hSummary.hidden = true;
@@ -1052,6 +1195,7 @@ var FT = (function(){
   }
 
   hMonth.onchange = function(){ if (hMonth.value) renderMonth(hMonth.value); };
+  hPerson.onchange = function(){ if (state.months[hMonth.value]) paint(hMonth.value); };
   hTag.onchange = function(){ if (state.months[hMonth.value]) paint(hMonth.value); };
   hType.onchange = function(){ if (state.months[hMonth.value]) paint(hMonth.value); };
   $("hReload").onclick = function(){ if (hMonth.value) renderMonth(hMonth.value); };
@@ -1105,8 +1249,15 @@ var FT = (function(){
   };
 
   /* ================= INIT ================= */
-  window.__financeReady = function(email){
-    state.email = email || null;
+  window.__financeReady = function(email, name){
+    state.me = {
+      email: norm(email),
+      name: (name || "").trim() || nameFromEmail(email)
+    };
+    state.people = loadPeople();
+    notePerson(state.me.email, state.me.name);   // you're always in your own roster
+    state.person = state.me.email;
+    fillPersonFilter();
     resetForm();
     fillCfg();
     var mk = monthOf(todayStr());
@@ -1150,12 +1301,12 @@ var FT = (function(){
   function fail(text){ errEl.textContent = text; errEl.className = "err show"; }
   function clearErr(){ errEl.className = "err"; errEl.textContent = ""; }
 
-  function unlock(email){
+  function unlock(email, name){
     document.documentElement.classList.remove("locked");
     if (gate) gate.style.display = "none";
     var out = document.getElementById("signOut");
     if (out) out.textContent = "Sign out" + (email ? " (" + email + ")" : "");
-    if (window.__financeReady) window.__financeReady(email);
+    if (window.__financeReady) window.__financeReady(email, name);
   }
 
   function sha256(text){
@@ -1179,10 +1330,11 @@ var FT = (function(){
 
   /* Remembered session — re-checked against ALLOW on every load, so removing
      someone from the list locks them out even if they signed in before. */
-  function remember(email){
+  function remember(email, name){
     try{
       localStorage.setItem(SKEY, JSON.stringify({
         email: email,
+        name: name || "",
         exp: Date.now() + REMEMBER_DAYS * 86400000
       }));
     }catch(e){}
@@ -1191,7 +1343,8 @@ var FT = (function(){
   function readKey(key){
     try{
       var s = JSON.parse(localStorage.getItem(key) || "null");
-      if (s && s.email && s.exp > Date.now()) return s.email;
+      // The fitness page's session has no name field — that's fine, we derive one.
+      if (s && s.email && s.exp > Date.now()) return { email: s.email, name: s.name || "" };
     }catch(e){}
     return null;
   }
@@ -1219,8 +1372,10 @@ var FT = (function(){
       fail("That Google account has no verified email address."); return;
     }
 
+    // Google hands us the display name, so the roster never needs configuring.
+    var who = (claims.given_name || claims.name || "").trim();
     allowed(claims.email).then(function(ok){
-      if (ok){ remember(claims.email); unlock(claims.email); }
+      if (ok){ remember(claims.email, who); unlock(claims.email, who); }
       else fail(claims.email + " isn't on the allowed list.");
     });
   }
@@ -1262,7 +1417,9 @@ var FT = (function(){
 
   // Skip the button entirely if this device signed in recently and is still allowed.
   var prior = saved();
-  if (prior) allowed(prior).then(function(ok){ if (ok) unlock(prior); else forget(); });
+  if (prior) allowed(prior.email).then(function(ok){
+    if (ok) unlock(prior.email, prior.name); else forget();
+  });
 })();
 </script>
 <script src="https://accounts.google.com/gsi/client" async defer
